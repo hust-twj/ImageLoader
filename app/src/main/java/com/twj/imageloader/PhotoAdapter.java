@@ -2,10 +2,13 @@ package com.twj.imageloader;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
+import com.hust_twj.imageloderlibrary.ImageLoader;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -45,6 +48,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
     public void onBindViewHolder(@NotNull PhotoAdapter.ViewHolder holder, final int position) {
         final String entity = mDataList.get(position);
         //holder.mTvPhoto.setba
+        Log.e("twj", ImageLoader.HAHA +"");
     }
 
     @Override

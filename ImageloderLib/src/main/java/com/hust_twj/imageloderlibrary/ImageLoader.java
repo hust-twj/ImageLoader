@@ -5,4 +5,5 @@ package com.hust_twj.imageloderlibrary;
  * @data 2019/6/10
  */
 public class ImageLoader {
+    public static final int HAHA = 1;
 }
