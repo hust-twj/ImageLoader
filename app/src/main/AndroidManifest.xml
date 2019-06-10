@@ -17,6 +17,10 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".LoadLocalImageActivity"/>
+        <activity android:name=".LoadRemoteImageActivity"/>
+
+
         <activity android:name=".ListActivity"/>
 
     </application>
