@@ -30,4 +30,15 @@
         android:layout_height="1dp"
         android:background="@color/colorAccent"/>
 
+    <TextView
+        android:id="@+id/tv_list"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:text="列表" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"/>
+
 </LinearLayout>
