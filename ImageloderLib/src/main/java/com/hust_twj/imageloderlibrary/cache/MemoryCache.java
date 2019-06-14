@@ -16,13 +16,13 @@ public class MemoryCache implements BitmapCache {
     public MemoryCache() {
         //获取应用在系统中分配的总内存
         int totalMemory = (int) (Runtime.getRuntime().totalMemory() / 1024);
-        //取1/8的作为缓存
+        //取总内存的 1/8 的作为缓存
         int cacheSize = totalMemory / 8;
         mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 
             @Override
             protected int sizeOf(@NonNull String key, @NonNull Bitmap bitmap) {
-                //重写sizeOf，返回图片的占用字节数
+                //重写sizeOf，计算每张图片的占用字节数
                 return bitmap.getByteCount() / 1024;
             }
         };
