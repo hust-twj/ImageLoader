@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedOutputStream;
@@ -15,6 +14,8 @@ import java.io.OutputStream;
 /**
  * Description ：磁盘缓存
  * Created by Wenjing.Tang on 2019-06-16.
+ *
+ * 参考：https://www.jianshu.com/p/f9cfbea586c2
  */
 public class DiskCache implements BitmapCache {
 
@@ -26,36 +27,20 @@ public class DiskCache implements BitmapCache {
 
     @Override
     public Bitmap get(final String key) {
-        return null;
-        // 图片解析器
-       /* BitmapDecoder decoder = new BitmapDecoder() {
-
-            @Override
-            public Bitmap decodeBitmapWithOption(BitmapFactory.Options options) {
-                final InputStream inputStream = getInputStream(Md5Utils.toMD5(key));
-                Bitmap bitmap = BitmapFactory.decodeStream(inputStream, null,
-                        options);
-                IOUtil.closeQuietly(inputStream);
-                return bitmap;
-            }
-        };
-
-        return decoder.decodeBitmap(bean.getImageViewWidth(),
-                bean.getImageViewHeight());*/
-    }
-
-    private InputStream getInputStream(String md5) {
-        DiskLruCache.Snapshot snapshot;
+        String md5Key;
         try {
-            snapshot = mDiskLruCache.get(md5);
+            md5Key = Md5Utils.toMD5(key);
+            DiskLruCache.Snapshot snapshot = mDiskLruCache.get(md5Key);
             if (snapshot != null) {
-                return snapshot.getInputStream(0);
+                InputStream in = snapshot.getInputStream(0);
+                return BitmapFactory.decodeStream(in);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
+
 
     /**
      * 内存缓存只缓存从网络下载的图片
