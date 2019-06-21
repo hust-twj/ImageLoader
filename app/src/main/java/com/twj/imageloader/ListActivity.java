@@ -26,7 +26,7 @@ public class ListActivity extends AppCompatActivity {
         mRvPhotoList.setLayoutManager(new LinearLayoutManager(this));
 
         PhotoAdapter adapter = new PhotoAdapter(this);
-        adapter.setDataList(generateData());
+        adapter.setDataList(generateImage());
         mRvPhotoList.setAdapter(adapter);
     }
 

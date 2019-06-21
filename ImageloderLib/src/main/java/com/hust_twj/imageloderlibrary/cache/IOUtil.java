@@ -19,6 +19,8 @@ package com.hust_twj.imageloderlibrary.cache;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
@@ -74,6 +76,25 @@ public final class IOUtil {
                 throw rethrown;
             } catch (Exception ignored) {
             }
+        }
+    }
+
+    public static void close(InputStream in) {
+        try {
+            if (in != null)
+                in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static void close(OutputStream out) {
+        try {
+            if (out != null)
+                out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

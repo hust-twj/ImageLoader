@@ -47,10 +47,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NotNull PhotoAdapter.ViewHolder holder, final int position) {
-        final String entity = mDataList.get(position);
+        final String url = mDataList.get(position);
+
         holder.mTvPosition.setText(String.valueOf(position));
-        //holder.mTvPhoto.setba
-        Log.e("twj", ImageLoader.HAHA +"");
+        ImageLoader.build(mContext).bindBitmap(url, holder.mTvPhoto);
     }
 
     @Override

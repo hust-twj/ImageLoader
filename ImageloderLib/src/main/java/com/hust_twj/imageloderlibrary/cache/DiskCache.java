@@ -5,14 +5,18 @@ import android.content.pm.PackageInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Log;
 
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 /**
  * Description ：磁盘缓存
@@ -22,6 +26,8 @@ import java.io.OutputStream;
  */
 public class DiskCache implements BitmapCache {
 
+    private static final String TAG = "DiskCache";
+
     private DiskLruCache mDiskLruCache;
 
     private static final String IMAGE_DISK_CACHE = "bitmap";
@@ -29,6 +35,7 @@ public class DiskCache implements BitmapCache {
      * 缓存最大值
      */
     private static final int MAX_SIZE = 20 * 1024 * 1024;
+    private static final int IO_BUFFER_SIZE = 8 * 1024;
 
     private static DiskCache mInstance;
 
@@ -118,7 +125,7 @@ public class DiskCache implements BitmapCache {
             editor = mDiskLruCache.edit(Md5Utils.toMD5(key));
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
-                if (writeBitmapToDisk(value, outputStream)) {
+                if (downloadUrlToStream(key, outputStream)) {
                     // 写入disk缓存
                     editor.commit();
                 } else {
@@ -129,6 +136,33 @@ public class DiskCache implements BitmapCache {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
+        HttpURLConnection urlConnection = null;
+        BufferedOutputStream out = null;
+        BufferedInputStream in = null;
+        try {
+            final URL url = new URL(urlString);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            in = new BufferedInputStream(urlConnection.getInputStream(),
+                    IO_BUFFER_SIZE);
+            out = new BufferedOutputStream(outputStream, IO_BUFFER_SIZE);
+
+            int b;
+            while ((b = in.read()) != -1) {
+                out.write(b);
+            }
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "downloadBitmap failed ." + e);
+        } finally {
+            if(urlConnection !=null)
+                urlConnection.disconnect();
+            IOUtil.close(out);
+            IOUtil.close(in);
+        }
+        return false;
     }
 
     private boolean writeBitmapToDisk(Bitmap bitmap, OutputStream outputStream) {
