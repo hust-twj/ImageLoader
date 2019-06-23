@@ -8,16 +8,47 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/tv_load_local"
+        android:id="@+id/tv_load_png"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="80dp"
         android:gravity="center"
-        android:text="加载本地图片" />
-
-    <ImageView
-        android:id="@+id/iv_image"
+        android:text="加载png图片" />
+    <View
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"/>
 
+    <TextView
+        android:id="@+id/tv_load_jpg"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="加载jpg图片" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"/>
+
+    <TextView
+        android:id="@+id/tv_load_jpeg"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="加载jpeg图片" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"/>
+
+    <TextView
+        android:id="@+id/tv_load_webp"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="加载webp图片" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"/>
 
 </LinearLayout>

@@ -46,7 +46,7 @@ public class ImageLoader {
 
     private static final String TAG = "ImageLoader";
 
-    public static final int MESSAGE_POST_RESULT = 1;
+    private static final int MESSAGE_POST_RESULT = 1;
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
 
@@ -55,22 +55,21 @@ public class ImageLoader {
     private static final long KEEP_ALIVE = 10L;
 
     private static final int TAG_KEY_URI = R.id.image_loader_uri;
-    private static final long DISK_CACHE_SIZE = 1024 * 1024 * 50;
     private static final int IO_BUFFER_SIZE = 8 * 1024;
-    private static final int DISK_CACHE_INDEX = 0;
-    private boolean mIsDiskLruCacheCreated = false;
+
+    private Context mContext;
+    private ImageResizer mImageResizer = new ImageResizer();
 
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger();
 
         @Override
         public Thread newThread(Runnable r) {
-            // TODO Auto-generated method stub
             return new Thread(r, "ImageLoader#" + mCount.getAndIncrement());
         }
     };
 
-    public static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
+    private static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
             CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS,
             new LinkedBlockingDeque<Runnable>(), sThreadFactory);
 
@@ -91,28 +90,14 @@ public class ImageLoader {
 
     };
 
-    private Context mContext;
-    private ImageResizer mImageResizer = new ImageResizer();
-
     private ImageLoader(Context context) {
         mContext = context.getApplicationContext();
         init();
     }
 
     public static ImageLoader build(Context context) {
-        return new ImageLoader(context);
+        return getInstance(context);
     }
-
-    /*public static ImageLoader getInstance() {
-        if (sInstance == null) {
-            synchronized (ImageLoader.class) {
-                if (sInstance == null) {
-                    sInstance = new ImageLoader();
-                }
-            }
-        }
-        return sInstance;
-    }*/
 
     public void init(/*ImageLoaderConfig config*/) {
         //mConfig = config;
@@ -124,6 +109,17 @@ public class ImageLoader {
         if (mDiskCache == null) {
             mDiskCache = new DiskCache(mContext);
         }
+    }
+
+    private static ImageLoader getInstance(Context context) {
+        if (sInstance == null) {
+            synchronized (ImageLoader.class) {
+                if (sInstance == null) {
+                    sInstance = new ImageLoader(context);
+                }
+            }
+        }
+        return sInstance;
     }
 
     public void display(ImageView imageView, String uri) {
@@ -145,7 +141,7 @@ public class ImageLoader {
     // 异步加载
     public void bindBitmap(final String uri, final ImageView imageView) {
         imageView.setTag(TAG_KEY_URI, uri);
-        Bitmap bitmap = loadBitmpaFromMemCache(uri);
+        Bitmap bitmap = loadBitmapFromMemCache(uri);
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
             return;
@@ -167,7 +163,7 @@ public class ImageLoader {
 
     // 同步加载
     public Bitmap loadBitmap(String uri) {
-        Bitmap bitmap = loadBitmpaFromMemCache(uri);
+        Bitmap bitmap = loadBitmapFromMemCache(uri);
         if (bitmap != null) {
             return bitmap;
         }
@@ -178,13 +174,13 @@ public class ImageLoader {
         }
         bitmap = loadBitmapFromHttp(uri);
 
-        if (bitmap == null && !mIsDiskLruCacheCreated) {
+        if (bitmap == null) {
             bitmap = downloadBitmapFromUrl(uri);
         }
         return bitmap;
     }
 
-    private Bitmap loadBitmpaFromMemCache(String url) {
+    private Bitmap loadBitmapFromMemCache(String url) {
         final String key = Md5Utils.toMD5(url);
         return mMemoryCache.get(key);
     }
@@ -236,8 +232,9 @@ public class ImageLoader {
             // TODO: handle exception
             Log.e(TAG, "Error in downloadBitmap:" + e);
         } finally {
-            if (urlConnection != null)
+            if (urlConnection != null) {
                 urlConnection.disconnect();
+            }
             IOUtil.close(in);
         }
         return bitmap;
@@ -245,9 +242,9 @@ public class ImageLoader {
 
     private static class LoaderResult {
 
-        public ImageView imageView;
-        public String uri;
-        public Bitmap bitmap;
+        private ImageView imageView;
+        private String uri;
+        private Bitmap bitmap;
 
         private LoaderResult(ImageView imageView, String uri, Bitmap bitmap) {
             super();
