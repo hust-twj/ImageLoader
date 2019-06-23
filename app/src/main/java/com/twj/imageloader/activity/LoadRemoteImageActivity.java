@@ -1,4 +1,4 @@
-package com.twj.imageloader;
+package com.twj.imageloader.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
+import com.twj.imageloader.R;
 
 /**
  * description ：加载网络图片

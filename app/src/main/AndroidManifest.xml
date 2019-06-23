@@ -13,7 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -21,15 +21,15 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoadLocalImageActivity"/>
-        <activity android:name=".LoadRemoteImageActivity"/>
+        <activity android:name=".activity.LoadLocalImageActivity"/>
+        <activity android:name=".activity.LoadRemoteImageActivity"/>
 
-        <activity android:name=".ListActivity"/>
+        <activity android:name=".activity.ListActivity"/>
 
-        <activity android:name=".LocalJpegActivity"/>
-        <activity android:name=".LocalJpgActivity"/>
-        <activity android:name=".LocalPngActivity"/>
-        <activity android:name=".LocalWebpActivity"/>
+        <activity android:name=".activity.LocalJpegActivity"/>
+        <activity android:name=".activity.LocalJpgActivity"/>
+        <activity android:name=".activity.LocalPngActivity"/>
+        <activity android:name=".activity.LocalWebpActivity"/>
 
     </application>
 

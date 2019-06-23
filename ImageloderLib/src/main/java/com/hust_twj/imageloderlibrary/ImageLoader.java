@@ -95,10 +95,6 @@ public class ImageLoader {
         init();
     }
 
-    public static ImageLoader build(Context context) {
-        return getInstance(context);
-    }
-
     public void init(/*ImageLoaderConfig config*/) {
         //mConfig = config;
         ///mMemoryCache = config.bitmapCache;
@@ -109,6 +105,10 @@ public class ImageLoader {
         if (mDiskCache == null) {
             mDiskCache = new DiskCache(mContext);
         }
+    }
+
+    public static ImageLoader build(Context context) {
+        return getInstance(context);
     }
 
     private static ImageLoader getInstance(Context context) {

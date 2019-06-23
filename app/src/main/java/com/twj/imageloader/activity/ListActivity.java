@@ -1,10 +1,13 @@
-package com.twj.imageloader;
+package com.twj.imageloader.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+
+import com.twj.imageloader.adapter.PhotoAdapter;
+import com.twj.imageloader.R;
 
 import java.util.ArrayList;
 import java.util.List;

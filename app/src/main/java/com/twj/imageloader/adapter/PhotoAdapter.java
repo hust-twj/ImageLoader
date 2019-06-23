@@ -1,4 +1,4 @@
-package com.twj.imageloader;
+package com.twj.imageloader.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
+import com.twj.imageloader.R;
 
 import org.jetbrains.annotations.NotNull;
 
