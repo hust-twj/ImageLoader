@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, LoadRemoteImageActivity::class.java))
         }
 
-
         tv_list.setOnClickListener {
             startActivity(Intent(this@MainActivity, ListActivity::class.java))
         }

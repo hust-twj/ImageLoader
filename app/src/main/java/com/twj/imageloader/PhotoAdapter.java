@@ -2,7 +2,6 @@ package com.twj.imageloader;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -79,14 +78,4 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         }
     }
 
-    public void setOnlClickListener(OnClickListener listener) {
-        mClickListener = listener;
-    }
-
-    private OnClickListener mClickListener;
-
-    public interface OnClickListener {
-
-        void onClick(int index);
-    }
 }

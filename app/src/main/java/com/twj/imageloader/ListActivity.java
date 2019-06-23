@@ -30,14 +30,6 @@ public class ListActivity extends AppCompatActivity {
         mRvPhotoList.setAdapter(adapter);
     }
 
-    private List<String> generateData() {
-        List<String> list = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            list.add("");
-        }
-        return list;
-    }
-
     /**
      * http://www.mafengwo.cn/photo/10754/scenery_13617685/395418101.html
      */

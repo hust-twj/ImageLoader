@@ -192,7 +192,7 @@ public class ImageLoader {
     // 将下载的图片写入磁盘中，实现磁盘缓存
     private Bitmap loadBitmapFromHttp(String url) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw new RuntimeException("can not visit network from UI Thread.");
+            throw new RuntimeException("应在子线程访问网络");
         }
         if (mDiskCache == null) {
             return null;
@@ -242,7 +242,6 @@ public class ImageLoader {
         }
         return bitmap;
     }
-
 
     private static class LoaderResult {
 
