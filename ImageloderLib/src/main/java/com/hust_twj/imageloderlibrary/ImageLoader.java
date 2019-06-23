@@ -95,7 +95,7 @@ public class ImageLoader {
         init();
     }
 
-    public void init(/*ImageLoaderConfig config*/) {
+    private void init(/*ImageLoaderConfig config*/) {
         //mConfig = config;
         ///mMemoryCache = config.bitmapCache;
 
@@ -138,7 +138,41 @@ public class ImageLoader {
 
     }
 
-    // 异步加载
+    /**
+     * 加载本地图片
+     * @param resID 资源ID
+     * @param imageView ImageView
+     */
+    public void bindBitmap(final int resID, final ImageView imageView) {
+        Exception exception = null;
+        try{
+            imageView.setImageResource(resID);
+        }catch (Exception e){
+            exception = e;
+            e.printStackTrace();
+        }
+
+        if (mListener!=null)  {
+            if (imageView.getDrawable() == null) {
+                Log.e("twj","加载本地图片失败");
+                mListener.onResourceReady(imageView.getDrawable(),"");
+            }else {
+                mListener.onFailure(exception);
+            }
+        }
+    }
+
+    private ImageLoadListener  mListener;
+    public ImageLoader onLoadListener(ImageLoadListener loadListener){
+        mListener=loadListener;
+        return this;
+    }
+
+    /**
+     * 异步加载网络图片
+     * @param uri 资源ID
+     * @param imageView ImageView
+     */
     public void bindBitmap(final String uri, final ImageView imageView) {
         imageView.setTag(TAG_KEY_URI, uri);
         Bitmap bitmap = loadBitmapFromMemCache(uri);

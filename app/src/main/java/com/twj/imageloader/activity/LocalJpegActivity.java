@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 
+import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.twj.imageloader.R;
 
 /**
@@ -22,6 +23,6 @@ public class LocalJpegActivity extends AppCompatActivity {
 
         mIv = findViewById(R.id.iv_image);
 
-        mIv.setImageResource(R.drawable.qianxun_jpeg);
+        ImageLoader.build(this).bindBitmap(R.drawable.qianxun_jpeg, mIv);
     }
 }
