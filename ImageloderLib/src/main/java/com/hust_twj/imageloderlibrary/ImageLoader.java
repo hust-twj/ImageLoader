@@ -82,15 +82,16 @@ public class ImageLoader {
         public void handleMessage(Message msg) {
             LoaderResult result = (LoaderResult) msg.obj;
             ImageView imageView = result.imageView;
-            imageView.setImageBitmap(result.bitmap);
             String uri = (String) imageView.getTag(TAG_KEY_URI);
             if (uri.equals(result.uri)) {
                 imageView.setImageBitmap(result.bitmap);
+                if (mListener != null) {
+                    mListener.onResourceReady(result.bitmap, uri);
+                }
             } else {
                 Log.w(TAG, "set image bitmap,but url has changed , ignored!");
             }
         }
-
     };
 
     private ImageLoader(Context context) {
@@ -177,12 +178,15 @@ public class ImageLoader {
      * @param uri 资源ID
      * @param imageView ImageView
      */
-    public void bindBitmap(final String uri, final ImageView imageView) {
+    public ImageLoader bindBitmap(final String uri, final ImageView imageView) {
         imageView.setTag(TAG_KEY_URI, uri);
         Bitmap bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
-            return;
+            if (mListener != null) {
+                mListener.onResourceReady(bitmap, uri);
+            }
+            return this;
         }
         Runnable loadBitmapTask = new Runnable() {
 
@@ -197,6 +201,7 @@ public class ImageLoader {
             }
         };
         THREAD_POOL_EXECUTOR.execute(loadBitmapTask);
+        return this;
     }
 
     /**
