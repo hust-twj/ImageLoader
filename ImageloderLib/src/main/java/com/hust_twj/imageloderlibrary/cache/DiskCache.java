@@ -9,14 +9,11 @@ import android.util.Log;
 
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 
 /**
  * Description ：磁盘缓存
@@ -62,6 +59,7 @@ public class DiskCache implements BitmapCache {
             }
             mDiskLruCache = DiskLruCache.open(cacheDir, getAppVersion(context), 1, MAX_SIZE);
         } catch (IOException e) {
+            Log.e(TAG,"initDiskCache Exception: " + e);
             e.printStackTrace();
         }
     }
@@ -71,6 +69,7 @@ public class DiskCache implements BitmapCache {
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return info.versionCode;
         } catch (Exception e) {
+            Log.e(TAG,"getAppVersion Exception: " + e);
             e.printStackTrace();
         }
         return 1;
@@ -106,6 +105,7 @@ public class DiskCache implements BitmapCache {
                 return BitmapFactory.decodeStream(in);
             }
         } catch (IOException e) {
+            Log.e(TAG,"DiskCache get() Exception: " + e);
             e.printStackTrace();
         }
         return null;
@@ -125,7 +125,7 @@ public class DiskCache implements BitmapCache {
             editor = mDiskLruCache.edit(Md5Utils.toMD5(key));
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
-                if (downloadUrlToStream(key, outputStream)) {
+                if (writeBitmapToDisk(value, outputStream)) {
                     // 写入disk缓存
                     editor.commit();
                 } else {
@@ -134,35 +134,9 @@ public class DiskCache implements BitmapCache {
                 IOUtil.closeQuietly(outputStream);
             }
         } catch (IOException e) {
+            Log.e(TAG,"DiskCache put() Exception: " + e);
             e.printStackTrace();
         }
-    }
-
-    public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
-        HttpURLConnection urlConnection = null;
-        BufferedOutputStream out = null;
-        BufferedInputStream in = null;
-        try {
-            final URL url = new URL(urlString);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream(),
-                    IO_BUFFER_SIZE);
-            out = new BufferedOutputStream(outputStream, IO_BUFFER_SIZE);
-
-            int b;
-            while ((b = in.read()) != -1) {
-                out.write(b);
-            }
-            return true;
-        } catch (Exception e) {
-            Log.e(TAG, "downloadBitmap failed ." + e);
-        } finally {
-            if(urlConnection !=null)
-                urlConnection.disconnect();
-            IOUtil.close(out);
-            IOUtil.close(in);
-        }
-        return false;
     }
 
     private boolean writeBitmapToDisk(Bitmap bitmap, OutputStream outputStream) {
@@ -172,6 +146,7 @@ public class DiskCache implements BitmapCache {
         try {
             bos.flush();
         } catch (IOException e) {
+            Log.e(TAG, "writeBitmapToDisk failed ." + e);
             e.printStackTrace();
             result = false;
         } finally {
@@ -185,6 +160,7 @@ public class DiskCache implements BitmapCache {
         try {
             mDiskLruCache.remove(Md5Utils.toMD5(key));
         } catch (IOException e) {
+            Log.e(TAG,"DiskCache remove Exception: " + e);
             e.printStackTrace();
         }
     }

@@ -3,6 +3,7 @@ package com.hust_twj.imageloderlibrary;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -59,6 +60,8 @@ public class ImageLoader {
 
     private Context mContext;
     private ImageResizer mImageResizer = new ImageResizer();
+
+    private ImageLoadListener  mListener;
 
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger();
@@ -152,19 +155,20 @@ public class ImageLoader {
             e.printStackTrace();
         }
 
-        if (mListener!=null)  {
+        if (mListener!=null) {
             if (imageView.getDrawable() == null) {
                 Log.e("twj","加载本地图片失败");
-                mListener.onResourceReady(imageView.getDrawable(),"");
+                BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
+                Bitmap bitmap = bd.getBitmap();
+                mListener.onResourceReady(bitmap,"");
             }else {
                 mListener.onFailure(exception);
             }
         }
     }
 
-    private ImageLoadListener  mListener;
     public ImageLoader onLoadListener(ImageLoadListener loadListener){
-        mListener=loadListener;
+        mListener = loadListener;
         return this;
     }
 
@@ -175,7 +179,7 @@ public class ImageLoader {
      */
     public void bindBitmap(final String uri, final ImageView imageView) {
         imageView.setTag(TAG_KEY_URI, uri);
-        Bitmap bitmap = loadBitmapFromMemCache(uri);
+        Bitmap bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
             return;
@@ -195,51 +199,35 @@ public class ImageLoader {
         THREAD_POOL_EXECUTOR.execute(loadBitmapTask);
     }
 
-    // 同步加载
+    /**
+     * 加载图片：三级缓存
+     * @param uri uri
+     * @return Bitmap
+     */
     public Bitmap loadBitmap(String uri) {
-        Bitmap bitmap = loadBitmapFromMemCache(uri);
+        Bitmap bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
             return bitmap;
         }
-
         bitmap = loadBitmapForDiskCache(uri);
         if (bitmap != null) {
             return bitmap;
         }
-        bitmap = loadBitmapFromHttp(uri);
-
-        if (bitmap == null) {
-            bitmap = downloadBitmapFromUrl(uri);
-        }
+        bitmap = downloadBitmapFromUrl(uri);
         return bitmap;
     }
-
-    private Bitmap loadBitmapFromMemCache(String url) {
+    /**
+     * 从内存缓存中加载图片
+     */
+    private Bitmap loadBitmapFromMemoryCache(String url) {
         final String key = Md5Utils.toMD5(url);
         return mMemoryCache.get(key);
     }
 
-    // 将下载的图片写入磁盘中，实现磁盘缓存
-    private Bitmap loadBitmapFromHttp(String url) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw new RuntimeException("应在子线程访问网络");
-        }
-        if (mDiskCache == null) {
-            return null;
-        }
-
-        String key = Md5Utils.toMD5(url);
-        mDiskCache.put(key, null);
-        return loadBitmapForDiskCache(url);
-    }
-
     /**
-     * 从磁盘加载图片
+     * 从磁盘缓存中加载图片
      */
     private Bitmap loadBitmapForDiskCache(String url) {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            Log.w(TAG, "warning: load bitmap from UI Thread ");
-        }
         if (mDiskCache == null) {
             return null;
         }
@@ -252,18 +240,36 @@ public class ImageLoader {
         return bitmap;
     }
 
+    /**
+     *  将下载的图片写入磁盘中，实现磁盘缓存
+     * @param urlString 图片链接
+     * @return Bitmap
+     */
     private Bitmap downloadBitmapFromUrl(String urlString) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new RuntimeException("应在子线程访问网络");
+        }
+        if (!(urlString.startsWith("http") || urlString.startsWith("https"))) {
+            throw new RuntimeException("图片链接有误");
+        }
         Bitmap bitmap = null;
         HttpURLConnection urlConnection = null;
         BufferedInputStream in = null;
         try {
             final URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream(),
-                    IO_BUFFER_SIZE);
+            in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
             bitmap = BitmapFactory.decodeStream(in);
+            if (bitmap != null) {
+                String key = Md5Utils.toMD5(urlString);
+                if (mMemoryCache != null)  {
+                    mMemoryCache.put(key, bitmap);
+                }
+                if (mDiskCache != null) {
+                    mDiskCache.put(key, bitmap);
+                }
+            }
         } catch (Exception e) {
-            // TODO: handle exception
             Log.e(TAG, "Error in downloadBitmap:" + e);
         } finally {
             if (urlConnection != null) {

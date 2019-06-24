@@ -15,7 +15,7 @@ public class MemoryCache implements BitmapCache {
 
     public MemoryCache() {
         //获取应用在系统中分配的总内存
-        int totalMemory = (int) (Runtime.getRuntime().totalMemory() / 1024);
+        int totalMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         //取总内存的 1/8 的作为缓存
         int cacheSize = totalMemory / 8;
         mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
