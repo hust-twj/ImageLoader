@@ -1,9 +1,9 @@
 package com.hust_twj.imageloderlibrary;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -47,7 +47,7 @@ public class ImageLoader {
 
     private static final String TAG = "ImageLoader";
 
-    private static final int MESSAGE_POST_RESULT = 1;
+    private static final int MESSAGE_LOAD_IMAGE = 1;
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
 
@@ -80,17 +80,24 @@ public class ImageLoader {
 
         @Override
         public void handleMessage(Message msg) {
-            LoaderResult result = (LoaderResult) msg.obj;
-            ImageView imageView = result.imageView;
-            String uri = (String) imageView.getTag(TAG_KEY_URI);
-            if (uri.equals(result.uri)) {
-                imageView.setImageBitmap(result.bitmap);
-                if (mListener != null) {
-                    mListener.onResourceReady(result.bitmap, uri);
-                }
-            } else {
-                Log.w(TAG, "set image bitmap,but url has changed , ignored!");
+            switch (msg.what) {
+                case MESSAGE_LOAD_IMAGE:
+                    LoaderResult result = (LoaderResult) msg.obj;
+                    ImageView imageView = result.imageView;
+                    String uri = (String) imageView.getTag(TAG_KEY_URI);
+                    if (uri.equals(result.uri)) {
+                        imageView.setImageBitmap(result.bitmap);
+                        if (mListener != null) {
+                            mListener.onResourceReady(result.bitmap, uri);
+                        }
+                    } else {
+                        Log.w(TAG, "set image bitmap,but url has changed , ignored!");
+                    }
+                    break;
+                default:
+                break;
             }
+
         }
     };
 
@@ -144,26 +151,22 @@ public class ImageLoader {
 
     /**
      * 加载本地图片
-     * @param resID 资源ID
+     * @param resID 本地图片资源ID
      * @param imageView ImageView
      */
-    public void bindBitmap(final int resID, final ImageView imageView) {
-        Exception exception = null;
+    public void load(final int resID, final ImageView imageView) {
         try{
-            imageView.setImageResource(resID);
-        }catch (Exception e){
-            exception = e;
-            e.printStackTrace();
-        }
+            Resources res = imageView.getContext().getResources();
+            Bitmap bitmap = BitmapFactory.decodeResource(res, resID);
+            imageView.setImageBitmap(bitmap);
 
-        if (mListener!=null) {
-            if (imageView.getDrawable() == null) {
-                Log.e("twj","加载本地图片失败");
-                BitmapDrawable bd = (BitmapDrawable) imageView.getDrawable();
-                Bitmap bitmap = bd.getBitmap();
+            if (bitmap != null && mListener != null) {
                 mListener.onResourceReady(bitmap,"");
-            }else {
-                mListener.onFailure(exception);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            if ( mListener != null) {
+                mListener.onFailure(e);
             }
         }
     }
@@ -195,7 +198,7 @@ public class ImageLoader {
                 Bitmap bitmap = loadBitmap(uri);
                 if (bitmap != null) {
                     LoaderResult result = new LoaderResult(imageView, uri, bitmap);
-                    mMainHandler.obtainMessage(MESSAGE_POST_RESULT, result)
+                    mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result)
                             .sendToTarget();
                 }
             }

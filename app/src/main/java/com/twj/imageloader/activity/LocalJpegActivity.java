@@ -23,6 +23,6 @@ public class LocalJpegActivity extends AppCompatActivity {
 
         mIv = findViewById(R.id.iv_image);
 
-        ImageLoader.build(this).bindBitmap(R.drawable.qianxun_jpeg, mIv);
+        ImageLoader.build(this).load(R.drawable.qianxun_jpeg, mIv);
     }
 }
