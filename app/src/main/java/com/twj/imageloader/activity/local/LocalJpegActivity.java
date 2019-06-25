@@ -1,4 +1,4 @@
-package com.twj.imageloader.activity;
+package com.twj.imageloader.activity.local;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;

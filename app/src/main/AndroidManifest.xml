@@ -21,16 +21,16 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activity.LoadLocalImageActivity"/>
+        <activity android:name=".activity.local.LoadLocalImageActivity"/>
         <activity android:name=".activity.LoadRemoteImageActivity"/>
 
         <activity android:name=".activity.MyListActivity"/>
         <activity android:name=".activity.GlideListActivity"/>
 
-        <activity android:name=".activity.LocalJpegActivity"/>
-        <activity android:name=".activity.LocalJpgActivity"/>
-        <activity android:name=".activity.LocalPngActivity"/>
-        <activity android:name=".activity.LocalWebpActivity"/>
+        <activity android:name=".activity.local.LocalJpegActivity"/>
+        <activity android:name=".activity.local.LocalJpgActivity"/>
+        <activity android:name=".activity.local.LocalPngActivity"/>
+        <activity android:name=".activity.local.LocalWebpActivity"/>
 
     </application>
 

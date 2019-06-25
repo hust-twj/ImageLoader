@@ -1,4 +1,4 @@
-package com.twj.imageloader.activity;
+package com.twj.imageloader.activity.local;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,17 +12,18 @@ import com.twj.imageloader.R;
  * description ：加载PNG图片
  * Created by Wenjing.Tang on 2019-05-22.
  */
-public class LocalJpgActivity extends AppCompatActivity {
+public class LocalPngActivity extends AppCompatActivity {
 
     private ImageView mIv;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_local_jpg);
+        setContentView(R.layout.activity_local_png);
 
         mIv = findViewById(R.id.iv_image);
 
-        ImageLoader.build(this).load(R.drawable.qianxun_jpg, mIv);
+        ImageLoader.build(this).load(R.drawable.qianxun_png, mIv);
+
     }
 }
