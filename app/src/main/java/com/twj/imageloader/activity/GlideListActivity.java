@@ -6,8 +6,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
-import com.twj.imageloader.adapter.PhotoAdapter;
 import com.twj.imageloader.R;
+import com.twj.imageloader.adapter.GlidePhotoAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,19 +16,19 @@ import java.util.List;
  * @author hust_twj
  * @date 2019/6/10
  */
-public class ListActivity extends AppCompatActivity {
+public class GlideListActivity extends AppCompatActivity {
 
     private List<String> imageList = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_list);
+        setContentView(R.layout.activity_my_list);
 
         RecyclerView mRvPhotoList = findViewById(R.id.rv_photo_list);
         mRvPhotoList.setLayoutManager(new LinearLayoutManager(this));
 
-        PhotoAdapter adapter = new PhotoAdapter(this);
+        GlidePhotoAdapter adapter = new GlidePhotoAdapter(this);
         adapter.setDataList(generateImage());
         mRvPhotoList.setAdapter(adapter);
     }

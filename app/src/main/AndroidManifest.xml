@@ -24,7 +24,8 @@
         <activity android:name=".activity.LoadLocalImageActivity"/>
         <activity android:name=".activity.LoadRemoteImageActivity"/>
 
-        <activity android:name=".activity.ListActivity"/>
+        <activity android:name=".activity.MyListActivity"/>
+        <activity android:name=".activity.GlideListActivity"/>
 
         <activity android:name=".activity.LocalJpegActivity"/>
         <activity android:name=".activity.LocalJpgActivity"/>

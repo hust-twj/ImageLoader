@@ -30,11 +30,22 @@
         android:background="@color/colorAccent"/>
 
     <TextView
-        android:id="@+id/tv_list"
+        android:id="@+id/tv_my_list"
         android:layout_width="match_parent"
         android:layout_height="60dp"
         android:gravity="center"
-        android:text="列表" />
+        android:text="列表(自定义图片加载)" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"/>
+
+    <TextView
+        android:id="@+id/tv_glide_list"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:text="列表(Glide图片加载)" />
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"

@@ -20,8 +20,12 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, LoadRemoteImageActivity::class.java))
         }
 
-        tv_list.setOnClickListener {
-            startActivity(Intent(this@MainActivity, ListActivity::class.java))
+        tv_my_list.setOnClickListener {
+            startActivity(Intent(this@MainActivity, MyListActivity::class.java))
+        }
+
+        tv_glide_list.setOnClickListener {
+            startActivity(Intent(this@MainActivity, GlideListActivity::class.java))
         }
     }
 }
