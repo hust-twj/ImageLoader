@@ -50,7 +50,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         final String url = mDataList.get(position);
 
         holder.mTvPosition.setText(String.valueOf(position));
-        ImageLoader.build(mContext).bindBitmap(url, holder.mTvPhoto);
+        ImageLoader.build(mContext).load(url, holder.mTvPhoto);
     }
 
     @Override

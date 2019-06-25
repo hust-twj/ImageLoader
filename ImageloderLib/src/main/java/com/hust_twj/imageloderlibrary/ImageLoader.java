@@ -133,7 +133,7 @@ public class ImageLoader {
         return sInstance;
     }
 
-    public void display(ImageView imageView, String uri) {
+   /* public void display(ImageView imageView, String uri) {
         display(imageView, uri, null, null);
     }
 
@@ -147,14 +147,14 @@ public class ImageLoader {
 
     public void display(ImageView imageView, String uri, DisplayConfig displayConfig, ImageLoadListener listener) {
 
-    }
+    }*/
 
     /**
      * 加载本地图片
      * @param resID 本地图片资源ID
      * @param imageView ImageView
      */
-    public void load(final int resID, final ImageView imageView) {
+    public ImageLoader load(final int resID, final ImageView imageView) {
         try{
             Resources res = imageView.getContext().getResources();
             Bitmap bitmap = BitmapFactory.decodeResource(res, resID);
@@ -169,10 +169,6 @@ public class ImageLoader {
                 mListener.onFailure(e);
             }
         }
-    }
-
-    public ImageLoader onLoadListener(ImageLoadListener loadListener){
-        mListener = loadListener;
         return this;
     }
 
@@ -181,9 +177,10 @@ public class ImageLoader {
      * @param uri 资源ID
      * @param imageView ImageView
      */
-    public ImageLoader bindBitmap(final String uri, final ImageView imageView) {
+    public ImageLoader load(final String uri, final ImageView imageView) {
         imageView.setTag(TAG_KEY_URI, uri);
-        Bitmap bitmap = loadBitmapFromMemoryCache(uri);
+        Bitmap bitmap;
+        bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
             if (mListener != null) {
@@ -191,39 +188,38 @@ public class ImageLoader {
             }
             return this;
         }
-        Runnable loadBitmapTask = new Runnable() {
+        bitmap = loadBitmapForDiskCache(uri);
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+            if (mListener != null) {
+                mListener.onResourceReady(bitmap, uri);
+            }
+            return this;
+        }
+        Runnable downloadTask = new Runnable() {
 
             @Override
             public void run() {
-                Bitmap bitmap = loadBitmap(uri);
+                Bitmap bitmap = downloadBitmapFromUrl(uri);
                 if (bitmap != null) {
+                    Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
                     LoaderResult result = new LoaderResult(imageView, uri, bitmap);
-                    mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result)
-                            .sendToTarget();
+                    Message message =  mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result);
+                    mMainHandler.sendMessage(message);
+                   /* mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result)
+                            .sendToTarget();*/
                 }
             }
         };
-        THREAD_POOL_EXECUTOR.execute(loadBitmapTask);
+        THREAD_POOL_EXECUTOR.execute(downloadTask);
         return this;
     }
 
-    /**
-     * 加载图片：三级缓存
-     * @param uri uri
-     * @return Bitmap
-     */
-    public Bitmap loadBitmap(String uri) {
-        Bitmap bitmap = loadBitmapFromMemoryCache(uri);
-        if (bitmap != null) {
-            return bitmap;
-        }
-        bitmap = loadBitmapForDiskCache(uri);
-        if (bitmap != null) {
-            return bitmap;
-        }
-        bitmap = downloadBitmapFromUrl(uri);
-        return bitmap;
+    public ImageLoader onLoadListener(ImageLoadListener loadListener){
+        mListener = loadListener;
+        return this;
     }
+
     /**
      * 从内存缓存中加载图片
      */
@@ -254,6 +250,7 @@ public class ImageLoader {
      * @return Bitmap
      */
     private Bitmap downloadBitmapFromUrl(String urlString) {
+        Log.e("twj125","download -------" + urlString);
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new RuntimeException("应在子线程访问网络");
         }

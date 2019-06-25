@@ -3,6 +3,7 @@ package com.hust_twj.imageloderlibrary.cache;
 import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 
 /**
  * 内存缓存（key为图片的uri，值为图片本身）
@@ -17,12 +18,14 @@ public class MemoryCache implements BitmapCache {
         //获取应用在系统中分配的总内存
         int totalMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         //取总内存的 1/8 的作为缓存
-        int cacheSize = totalMemory / 8;
+        int cacheSize = totalMemory / 8; //32768 --> 30M
+        Log.e("twjcache", cacheSize + "");
         mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 
             @Override
             protected int sizeOf(@NonNull String key, @NonNull Bitmap bitmap) {
                 //重写sizeOf，计算每张图片的占用字节数
+                Log.e("twjcache", "key: " + key  + "  " + bitmap.getByteCount() / 1024);
                 return bitmap.getByteCount() / 1024;
             }
         };
