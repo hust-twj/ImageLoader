@@ -51,4 +51,20 @@
         android:layout_height="1dp"
         android:background="@color/colorAccent"/>
 
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#000000"/>
+    <TextView
+        android:id="@+id/clean_cache"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:text="清除缓存" />
+
 </LinearLayout>

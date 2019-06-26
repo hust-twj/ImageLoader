@@ -31,8 +31,7 @@ public class DiskCache implements BitmapCache {
     /**
      * 缓存最大值
      */
-    private static final int MAX_SIZE = 20 * 1024 * 1024;
-    private static final int IO_BUFFER_SIZE = 8 * 1024;
+    private static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024;
 
     private static DiskCache mInstance;
 
@@ -57,7 +56,8 @@ public class DiskCache implements BitmapCache {
             if (!cacheDir.exists()) {
                 cacheDir.mkdirs();
             }
-            mDiskLruCache = DiskLruCache.open(cacheDir, getAppVersion(context), 1, MAX_SIZE);
+            mDiskLruCache = DiskLruCache.open(cacheDir, getAppVersion(context),
+                    1, MAX_DISK_CACHE_SIZE);
         } catch (IOException e) {
             Log.e(TAG,"initDiskCache Exception: " + e);
             e.printStackTrace();
