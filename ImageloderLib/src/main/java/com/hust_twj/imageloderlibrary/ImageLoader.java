@@ -11,15 +11,21 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.cache.DiskCache;
+import com.hust_twj.imageloderlibrary.cache.DiskLruCache;
 import com.hust_twj.imageloderlibrary.cache.IOUtil;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
-import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
+import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
 import com.hust_twj.imageloderlibrary.utils.ImageResizer;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileDescriptor;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Executor;
@@ -48,11 +54,9 @@ public class ImageLoader {
     private static final String TAG = "ImageLoader";
 
     private static final int MESSAGE_LOAD_IMAGE = 1;
-
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-
     private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
-    private static final int MAXIMUM_POOL_SIZE = CPU_COUNT * 2 + 1;
+    private static final int MAX_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final long KEEP_ALIVE = 10L;
 
     private static final int TAG_KEY_URI = R.id.image_loader_uri;
@@ -73,7 +77,7 @@ public class ImageLoader {
     };
 
     private static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
-            CORE_POOL_SIZE, MAXIMUM_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS,
+            CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS,
             new LinkedBlockingDeque<Runnable>(), sThreadFactory);
 
     private Handler mMainHandler = new Handler(Looper.getMainLooper()) {
@@ -172,12 +176,16 @@ public class ImageLoader {
         return this;
     }
 
+    public ImageLoader load(final String uri, final ImageView imageView){
+        return load(uri, imageView, 200, 200);
+    }
     /**
      * 异步加载网络图片
      * @param uri 资源ID
      * @param imageView ImageView
      */
-    public ImageLoader load(final String uri, final ImageView imageView) {
+    public ImageLoader load(final String uri, final ImageView imageView,
+                            final int reqWidth, final int reqHeight) {
         imageView.setTag(TAG_KEY_URI, uri);
         Bitmap bitmap;
         bitmap = loadBitmapFromMemoryCache(uri);
@@ -188,19 +196,19 @@ public class ImageLoader {
             }
             return this;
         }
-        bitmap = loadBitmapForDiskCache(uri);
+       /* bitmap = loadBitmapForDiskCache(uri,reqWidth, reqHeight);
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
             if (mListener != null) {
                 mListener.onResourceReady(bitmap, uri);
             }
             return this;
-        }
+        }*/
         Runnable downloadTask = new Runnable() {
 
             @Override
             public void run() {
-                Bitmap bitmap = downloadBitmapFromUrl(uri);
+                Bitmap bitmap = loadBitmap(uri, reqWidth, reqHeight);
                 if (bitmap != null) {
                     Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
                     LoaderResult result = new LoaderResult(imageView, uri, bitmap);
@@ -215,6 +223,117 @@ public class ImageLoader {
         return this;
     }
 
+    /**
+     *
+     * 同步加载  （从内存缓存、磁盘缓存、网络）
+     * @param uri http url
+     * @param reqWidth the width ImageView desired
+     * @param reqHeight the height ImageView desired
+     * @return bitmap, maybe null.
+     *
+     * 同步加载的设计步骤：
+     * 先从内存缓存尝试加载图片，找不到就去磁盘缓存拿，磁盘缓存拿不到就去网络拿
+     * 这个方法不能再线程执行，在主线程执行就抛异常（有一个检查当前线程的Looper是否为主线程的Looper的判断）
+     */
+    public Bitmap loadBitmap(String uri, int reqWidth, int reqHeight) {
+        Bitmap bitmap = loadBitmapFromMemoryCache(uri);
+        if (bitmap != null) {
+            return bitmap;
+        }
+
+        try {
+            bitmap = loadBitmapForDiskCache(uri, reqWidth, reqHeight);
+            if (bitmap != null) {
+                return bitmap;
+            }
+            bitmap = loadBitmapFromHttp(uri, reqWidth, reqHeight);
+            Log.d(TAG, "loadBitmapFromHttp,url:" + uri);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (bitmap == null) {
+            Log.w(TAG, "encounter error, DiskLruCache is not created.");
+            bitmap = downloadBitmapFromUrl(uri);
+        }
+
+        return bitmap;
+    }
+
+    private Bitmap loadBitmapFromHttp(String url, int reqWidth, int reqHeight)
+            throws IOException {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new RuntimeException("can not visit network from UI Thread.");
+        }
+        if (mDiskCache == null || mDiskCache.getDiskLruCache() == null) {
+            return null;
+        }
+
+        String key = Md5Utils.toMD5(url);
+        DiskLruCache.Editor editor = mDiskCache.getDiskLruCache().edit(key);
+        if (editor != null) {
+            OutputStream outputStream = editor.newOutputStream(0);
+            if (downloadUrlToStream(url, outputStream)) {
+                editor.commit();
+            } else {
+                editor.abort();
+            }
+            mDiskCache.getDiskLruCache().flush();
+        }
+        return loadBitmapForDiskCache(url, reqWidth, reqHeight);
+    }
+
+    public boolean downloadUrlToStream(String urlString,
+                                       OutputStream outputStream) {
+        HttpURLConnection urlConnection = null;
+        BufferedOutputStream out = null;
+        BufferedInputStream in = null;
+
+        try {
+            final URL url = new URL(urlString);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            in = new BufferedInputStream(urlConnection.getInputStream(),
+                    IO_BUFFER_SIZE);
+            out = new BufferedOutputStream(outputStream, IO_BUFFER_SIZE);
+
+            int b;
+            while ((b = in.read()) != -1) {
+                out.write(b);
+            }
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "downloadBitmap failed." + e);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            IOUtil.close(out);
+            IOUtil.close(in);
+        }
+        return false;
+    }
+
+    private Bitmap downloadBitmapFromUrl(String urlString) {
+        Bitmap bitmap = null;
+        HttpURLConnection urlConnection = null;
+        BufferedInputStream in = null;
+
+        try {
+            final URL url = new URL(urlString);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            in = new BufferedInputStream(urlConnection.getInputStream(),
+                    IO_BUFFER_SIZE);
+            bitmap = BitmapFactory.decodeStream(in);
+        } catch (final IOException e) {
+            Log.e(TAG, "Error in downloadBitmap: " + e);
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
+            IOUtil.close(in);
+        }
+        return bitmap;
+    }
     public ImageLoader onLoadListener(ImageLoadListener loadListener){
         mListener = loadListener;
         return this;
@@ -231,15 +350,28 @@ public class ImageLoader {
     /**
      * 从磁盘缓存中加载图片
      */
-    private Bitmap loadBitmapForDiskCache(String url) {
-        if (mDiskCache == null) {
+    private Bitmap loadBitmapForDiskCache(String url, int reqWidth, int reqHeight) {
+        if (mDiskCache == null || mDiskCache.getDiskLruCache() == null) {
             return null;
         }
-        Bitmap bitmap;
+
+        Bitmap bitmap = null;
         String key = Md5Utils.toMD5(url);
-        bitmap = mDiskCache.get(key);
-        if (bitmap != null && mMemoryCache != null && mMemoryCache.get(key) == null) {
-            mMemoryCache.put(key, bitmap);
+        try {
+            DiskLruCache.Snapshot snapshot = mDiskCache.getDiskLruCache().get(key);
+            if (snapshot != null) {
+                FileInputStream fileInputStream  = (FileInputStream) snapshot.getInputStream(0);
+                FileDescriptor fileDescriptor = fileInputStream.getFD();
+                bitmap = mImageResizer.decodeSampledBitmapFromBitmapFileDescriptor(fileDescriptor,
+                        reqWidth, reqHeight);
+
+                if (bitmap != null && mMemoryCache != null) {
+                    mMemoryCache.put(key, bitmap);
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG,"get diskCache exception: " + e);
+            e.printStackTrace();
         }
         return bitmap;
     }
@@ -249,8 +381,8 @@ public class ImageLoader {
      * @param urlString 图片链接
      * @return Bitmap
      */
-    private Bitmap downloadBitmapFromUrl(String urlString) {
-        Log.e("twj125","download -------" + urlString);
+    private Bitmap downloadBitmapFromUrl(String urlString, ImageView imageView) {
+        Log.e("twj1256","download -------" + urlString + "  " +imageView.getWidth() +"  " +imageView.getHeight());
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new RuntimeException("应在子线程访问网络");
         }
@@ -265,7 +397,15 @@ public class ImageLoader {
             urlConnection = (HttpURLConnection) url.openConnection();
             in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
             bitmap = BitmapFactory.decodeStream(in);
+
             if (bitmap != null) {
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                Log.e("twj1256", "options begin   "+bitmap.getWidth() + "  " +bitmap.getHeight());
+                options.outWidth = bitmap.getWidth();
+                options.outHeight = bitmap.getHeight();
+                BitmapDecoder.configBitmapOptions(options, imageView.getWidth(), imageView.getHeight());
+                Log.e("twj1256", "options end  "+bitmap.getWidth() + "  " +bitmap.getHeight());
+
                 String key = Md5Utils.toMD5(urlString);
                 if (mMemoryCache != null)  {
                     mMemoryCache.put(key, bitmap);

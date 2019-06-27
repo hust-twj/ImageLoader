@@ -46,11 +46,17 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
     }
 
     @Override
-    public void onBindViewHolder(@NotNull PhotoAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NotNull final PhotoAdapter.ViewHolder holder, final int position) {
         final String url = mDataList.get(position);
 
         holder.mTvPosition.setText(String.valueOf(position));
-        ImageLoader.build(mContext).load(url, holder.mTvPhoto);
+        holder.mTvPhoto.post(new Runnable() {
+            @Override
+            public void run() {
+                ImageLoader.build(mContext).load(url, holder.mTvPhoto, holder.mTvPhoto.getWidth(), holder.mTvPhoto.getHeight());
+            }
+        });
+
     }
 
     @Override

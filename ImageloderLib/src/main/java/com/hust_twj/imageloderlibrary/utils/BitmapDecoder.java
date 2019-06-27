@@ -7,7 +7,7 @@ import android.graphics.BitmapFactory.Options;
 import android.util.Log;
 
 /**
- * Description ：封装先加载图片bound，计算出inSmallSize之后再加载图片的逻辑操作
+ * Description ：封装先加载图片bound，计算出inSampleSize之后再加载图片的逻辑操作
  * Created by Wenjing.Tang on 2019-06-16.
  */
 public abstract class BitmapDecoder {
@@ -54,21 +54,21 @@ public abstract class BitmapDecoder {
      * @param width
      * @param height
      */
-    protected void configBitmapOptions(Options options, int width, int height) {
+    public static void configBitmapOptions(Options options, int width, int height) {
         // 设置缩放比例
-        options.inSampleSize = computeInSmallSize(options, width, height);
+        options.inSampleSize = computeInSampleSize(options, width, height);
 
         Log.d("", "$## inSampleSize = " + options.inSampleSize
                 + ", width = " + width + ", height= " + height);
         // 图片质量
-        options.inPreferredConfig = Config.RGB_565;
+        options.inPreferredConfig = Config.ARGB_8888;
         // 设置为false,解析Bitmap对象加入到内存中
         options.inJustDecodeBounds = false;
         options.inPurgeable = true;
         options.inInputShareable = true;
     }
 
-    private int computeInSmallSize(Options options, int reqWidth, int reqHeight) {
+    private static int computeInSampleSize(Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;

@@ -33,21 +33,8 @@ public class DiskCache implements BitmapCache {
      */
     private static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024;
 
-    private static DiskCache mInstance;
-
     public DiskCache(Context context) {
         initDiskCache(context);
-    }
-
-    public static DiskCache getInstance(Context context) {
-        if (mInstance == null) {
-            synchronized (DiskCache.class) {
-                if (mInstance == null) {
-                    mInstance = new DiskCache(context);
-                }
-            }
-        }
-        return mInstance;
     }
 
     private void initDiskCache(Context context) {
@@ -62,6 +49,10 @@ public class DiskCache implements BitmapCache {
             Log.e(TAG,"initDiskCache Exception: " + e);
             e.printStackTrace();
         }
+    }
+
+    public DiskLruCache getDiskLruCache(){
+        return mDiskLruCache;
     }
 
     private int getAppVersion(Context context) {
@@ -105,7 +96,7 @@ public class DiskCache implements BitmapCache {
                 return BitmapFactory.decodeStream(in);
             }
         } catch (IOException e) {
-            Log.e(TAG,"DiskCache get() Exception: " + e);
+            Log.e(TAG,"get diskCache exception: " + e);
             e.printStackTrace();
         }
         return null;
@@ -134,7 +125,7 @@ public class DiskCache implements BitmapCache {
                 IOUtil.closeQuietly(outputStream);
             }
         } catch (IOException e) {
-            Log.e(TAG,"DiskCache put() Exception: " + e);
+            Log.e(TAG,"put diskCache exception: " + e);
             e.printStackTrace();
         }
     }
@@ -146,7 +137,7 @@ public class DiskCache implements BitmapCache {
         try {
             bos.flush();
         } catch (IOException e) {
-            Log.e(TAG, "writeBitmapToDisk failed ." + e);
+            Log.e(TAG, "writeBitmapToDisk failed:  " + e);
             e.printStackTrace();
             result = false;
         } finally {
@@ -160,7 +151,7 @@ public class DiskCache implements BitmapCache {
         try {
             mDiskLruCache.remove(Md5Utils.toMD5(key));
         } catch (IOException e) {
-            Log.e(TAG,"DiskCache remove Exception: " + e);
+            Log.e(TAG,"remove diskCache exception: " + e);
             e.printStackTrace();
         }
     }

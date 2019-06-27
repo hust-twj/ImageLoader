@@ -10,8 +10,7 @@ public class ImageResizer {
 	private static final String TAG = "ImageResizer";
 
 	public ImageResizer() {
-		super();
-		// TODO Auto-generated constructor stub
+
 	}
 
 	public Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
@@ -40,10 +39,6 @@ public class ImageResizer {
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeFileDescriptor(fd, null, options);
 	}
-	
-	
-	
-	
 
 	public int calculateInSampleSize(BitmapFactory.Options options,
                                      int reqWidth, int reqHeight) {
