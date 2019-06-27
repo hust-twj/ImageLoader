@@ -13,22 +13,19 @@ public class ImageResizer {
 
 	}
 
-	public Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-                                                  int reqWidth, int reqHeight) {
-		final BitmapFactory.Options options = new BitmapFactory.Options();
+	public static Bitmap decodeBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeResource(res, resId, options);
 
 		options.inSampleSize = calculateInSampleSize(options, reqWidth,
 				reqHeight);
-
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeResource(res, resId, options);
 	}
 	
-	public Bitmap decodeSampledBitmapFromBitmapFileDescriptor(FileDescriptor fd,
-                                                              int reqWidth, int reqHeight){
-		final BitmapFactory.Options options = new BitmapFactory.Options();
+	public static Bitmap decodeBitmapFromFileDescriptor(FileDescriptor fd, int reqWidth, int reqHeight){
+		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 	
 		BitmapFactory.decodeFileDescriptor(fd, null, options);
@@ -40,9 +37,7 @@ public class ImageResizer {
 		return BitmapFactory.decodeFileDescriptor(fd, null, options);
 	}
 
-	public int calculateInSampleSize(BitmapFactory.Options options,
-                                     int reqWidth, int reqHeight) {
-
+	private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
 		final int width = options.outWidth;
 		final int height = options.outHeight;
 
@@ -56,7 +51,6 @@ public class ImageResizer {
 			}
 		}
 		return inSampleSize;
-
 	}
 
 }

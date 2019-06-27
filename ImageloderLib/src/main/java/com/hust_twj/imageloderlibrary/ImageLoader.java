@@ -63,7 +63,6 @@ public class ImageLoader {
     private static final int IO_BUFFER_SIZE = 8 * 1024;
 
     private Context mContext;
-    private ImageResizer mImageResizer = new ImageResizer();
 
     private ImageLoadListener  mListener;
 
@@ -362,7 +361,7 @@ public class ImageLoader {
             if (snapshot != null) {
                 FileInputStream fileInputStream  = (FileInputStream) snapshot.getInputStream(0);
                 FileDescriptor fileDescriptor = fileInputStream.getFD();
-                bitmap = mImageResizer.decodeSampledBitmapFromBitmapFileDescriptor(fileDescriptor,
+                bitmap = ImageResizer.decodeBitmapFromFileDescriptor(fileDescriptor,
                         reqWidth, reqHeight);
 
                 if (bitmap != null && mMemoryCache != null) {
