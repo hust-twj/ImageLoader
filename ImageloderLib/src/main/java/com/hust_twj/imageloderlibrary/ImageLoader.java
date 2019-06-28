@@ -100,7 +100,6 @@ public class ImageLoader {
                 default:
                 break;
             }
-
         }
     };
 
@@ -195,14 +194,6 @@ public class ImageLoader {
             }
             return this;
         }
-       /* bitmap = loadBitmapForDiskCache(uri,reqWidth, reqHeight);
-        if (bitmap != null) {
-            imageView.setImageBitmap(bitmap);
-            if (mListener != null) {
-                mListener.onResourceReady(bitmap, uri);
-            }
-            return this;
-        }*/
         Runnable downloadTask = new Runnable() {
 
             @Override
@@ -224,22 +215,23 @@ public class ImageLoader {
 
     /**
      *
-     * 同步加载  （从内存缓存、磁盘缓存、网络）
+     * 同步加载  （依次从内存缓存、磁盘缓存、网络中加载）
      * @param uri http url
-     * @param reqWidth the width ImageView desired
-     * @param reqHeight the height ImageView desired
+     * @param reqWidth ImageView宽度
+     * @param reqHeight ImageView高度
      * @return bitmap, maybe null.
      *
-     * 同步加载的设计步骤：
      * 先从内存缓存尝试加载图片，找不到就去磁盘缓存拿，磁盘缓存拿不到就去网络拿
-     * 这个方法不能再线程执行，在主线程执行就抛异常（有一个检查当前线程的Looper是否为主线程的Looper的判断）
+     * 在子线程执行，主线程执行就抛异常（有一个检查当前线程的Looper是否为主线程的Looper的判断）
      */
     public Bitmap loadBitmap(String uri, int reqWidth, int reqHeight) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new RuntimeException("需要在子线程中执行");
+        }
         Bitmap bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
             return bitmap;
         }
-
         try {
             bitmap = loadBitmapForDiskCache(uri, reqWidth, reqHeight);
             if (bitmap != null) {
@@ -250,19 +242,16 @@ public class ImageLoader {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         if (bitmap == null) {
             Log.w(TAG, "encounter error, DiskLruCache is not created.");
             bitmap = downloadBitmapFromUrl(uri);
         }
-
         return bitmap;
     }
 
-    private Bitmap loadBitmapFromHttp(String url, int reqWidth, int reqHeight)
-            throws IOException {
+    private Bitmap loadBitmapFromHttp(String url, int reqWidth, int reqHeight) throws IOException {
         if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw new RuntimeException("can not visit network from UI Thread.");
+            throw new RuntimeException("需要在子线程中执行");
         }
         if (mDiskCache == null || mDiskCache.getDiskLruCache() == null) {
             return null;
@@ -282,8 +271,7 @@ public class ImageLoader {
         return loadBitmapForDiskCache(url, reqWidth, reqHeight);
     }
 
-    public boolean downloadUrlToStream(String urlString,
-                                       OutputStream outputStream) {
+    public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
         HttpURLConnection urlConnection = null;
         BufferedOutputStream out = null;
         BufferedInputStream in = null;
@@ -291,8 +279,7 @@ public class ImageLoader {
         try {
             final URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream(),
-                    IO_BUFFER_SIZE);
+            in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
             out = new BufferedOutputStream(outputStream, IO_BUFFER_SIZE);
 
             int b;
@@ -316,12 +303,10 @@ public class ImageLoader {
         Bitmap bitmap = null;
         HttpURLConnection urlConnection = null;
         BufferedInputStream in = null;
-
         try {
             final URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream(),
-                    IO_BUFFER_SIZE);
+            in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
             bitmap = BitmapFactory.decodeStream(in);
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap: " + e);
@@ -363,7 +348,6 @@ public class ImageLoader {
                 FileDescriptor fileDescriptor = fileInputStream.getFD();
                 bitmap = ImageResizer.decodeBitmapFromFileDescriptor(fileDescriptor,
                         reqWidth, reqHeight);
-
                 if (bitmap != null && mMemoryCache != null) {
                     mMemoryCache.put(key, bitmap);
                 }
