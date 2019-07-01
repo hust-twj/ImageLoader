@@ -21,6 +21,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.twj.imageloader.R;
 
 
@@ -134,7 +135,7 @@ public class LocalAlbumActivity extends AppCompatActivity {
 
     public void displayImage(String path) {
         if (path != null) {
-           // LiteImageLoader.getInstance().displayImage(mIv, path);
+            ImageLoader.build(this).load(path, mIv);
            /* Bitmap bitmap = BitmapFactory.decodeFile(path);
             mIv.setImageBitmap(bitmap);*/
         } else {
@@ -149,6 +150,7 @@ public class LocalAlbumActivity extends AppCompatActivity {
         if (uri == null) {
             return;
         }
+        ImageLoader.build(this).load(uri.toString(), mIv);
        // LiteImageLoader.getInstance().displayImage(mIv, uri.toString());
         /*if (DocumentsContract.isDocumentUri(LocalAlbumActivity.this, uri)) {
             //如果是document类型的Uri，那么通过document的id来处理

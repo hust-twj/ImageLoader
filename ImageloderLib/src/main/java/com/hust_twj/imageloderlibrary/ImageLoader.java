@@ -1,12 +1,17 @@
 package com.hust_twj.imageloderlibrary;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -22,6 +27,7 @@ import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,7 +65,7 @@ public class ImageLoader {
     private static final int MAX_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final long KEEP_ALIVE = 10L;
 
-    private static final int TAG_KEY_URI = R.id.image_loader_uri;
+    private static final int URI_TAG = R.id.image_loader_uri;
     private static final int IO_BUFFER_SIZE = 8 * 1024;
 
     private Context mContext;
@@ -87,7 +93,7 @@ public class ImageLoader {
                 case MESSAGE_LOAD_IMAGE:
                     LoaderResult result = (LoaderResult) msg.obj;
                     ImageView imageView = result.imageView;
-                    String uri = (String) imageView.getTag(TAG_KEY_URI);
+                    String uri = (String) imageView.getTag(URI_TAG);
                     if (uri.equals(result.uri)) {
                         imageView.setImageBitmap(result.bitmap);
                         if (mListener != null) {
@@ -111,7 +117,6 @@ public class ImageLoader {
     private void init(/*ImageLoaderConfig config*/) {
         //mConfig = config;
         ///mMemoryCache = config.bitmapCache;
-
         if (mMemoryCache == null) {
             mMemoryCache = new MemoryCache();
         }
@@ -134,22 +139,6 @@ public class ImageLoader {
         }
         return sInstance;
     }
-
-   /* public void display(ImageView imageView, String uri) {
-        display(imageView, uri, null, null);
-    }
-
-    public void display(ImageView imageView, String uri, ImageLoadListener listener) {
-        display(imageView, uri, null, listener);
-    }
-
-    public void display(ImageView imageView, String uri, DisplayConfig displayConfig) {
-        display(imageView, uri, displayConfig, null);
-    }
-
-    public void display(ImageView imageView, String uri, DisplayConfig displayConfig, ImageLoadListener listener) {
-
-    }*/
 
     /**
      * 加载本地图片
@@ -184,7 +173,7 @@ public class ImageLoader {
      */
     public ImageLoader load(final String uri, final ImageView imageView,
                             final int reqWidth, final int reqHeight) {
-        imageView.setTag(TAG_KEY_URI, uri);
+        imageView.setTag(URI_TAG, uri);
         Bitmap bitmap;
         bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
@@ -198,7 +187,12 @@ public class ImageLoader {
 
             @Override
             public void run() {
-                Bitmap bitmap = loadBitmap(uri, reqWidth, reqHeight);
+                Bitmap bitmap;
+                if (isLocalImage(uri) ) {
+                    bitmap = loadLocalImage(uri, imageView);
+                }else {
+                    bitmap = loadBitmap(uri, reqWidth, reqHeight);
+                }
                 if (bitmap != null) {
                     Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
                     LoaderResult result = new LoaderResult(imageView, uri, bitmap);
@@ -214,6 +208,105 @@ public class ImageLoader {
     }
 
     /**
+     * 加载本地图片
+     * @param uri uri
+     * @return Bitmap
+     */
+    private Bitmap loadLocalImage(String uri, ImageView imageView){
+        final String imagePath = getImagePath(mContext, uri);
+        final File imgFile = new File(imagePath);
+        if (!imgFile.exists()) {
+            return null;
+        }
+
+        // 加载图片
+        BitmapDecoder decoder = new BitmapDecoder() {
+
+            @Override
+            public Bitmap decodeBitmapWithOption(BitmapFactory.Options options) {
+                return BitmapFactory.decodeFile(imagePath, options);
+            }
+        };
+        Bitmap bitmap = decoder.decodeBitmap(imageView.getWidth(), imageView.getHeight());
+        if (bitmap != null  && mDiskCache != null)  {
+            String key =  Md5Utils.toMD5(uri);
+            mDiskCache.put(key, bitmap);
+        }
+        return bitmap;
+    }
+
+    private String getImagePath(Context context, String uriString) {
+        String imagePath = "";
+        Uri uri = Uri.parse(uriString);
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            //如果是document类型的Uri，那么通过document的id来处理
+            String documentId = DocumentsContract.getDocumentId(uri);
+            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
+                String id = documentId.split(":")[1];
+                String selection = MediaStore.Images.Media._ID + "=?";
+                String[] selectionArgs = {id};
+                imagePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
+            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(documentId));
+                imagePath = getImagePathFromUri(context, contentUri);
+            }
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            //如果是content类型的uri那么使用正常的uri
+            imagePath = getImagePathFromUri(context, uri);
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            //如果uri是file 那么直接获取文件的路径
+            imagePath = uri.getPath();
+        }
+        return imagePath;
+    }
+
+
+    /**
+     * 根据Uri来获取到图片对应的真实路径
+     */
+    private String getImagePathFromUri(Context context, Uri uri) {
+        String path = null;
+        Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null) {
+            return null;
+        }
+        if (cursor.moveToFirst()) {
+            try {
+                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        cursor.close();
+        return path;
+    }
+
+    /**
+     * 获取数据库表中的 _data 列，即返回Uri对应的文件路径
+     */
+    private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
+        String path = "";
+        String[] projection = new String[]{MediaStore.Images.Media.DATA};
+        Cursor cursor = null;
+        try {
+            cursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            if (cursor != null && cursor.moveToFirst()) {
+                int columnIndex = cursor.getColumnIndexOrThrow(projection[0]);
+                path = cursor.getString(columnIndex);
+            }
+        } catch (Exception e) {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return path;
+    }
+
+    private boolean isLocalImage(String uri){
+        return uri.startsWith("content") || uri.startsWith("file");
+    }
+
+    /**
      *
      * 同步加载  （依次从内存缓存、磁盘缓存、网络中加载）
      * @param uri http url
@@ -222,7 +315,7 @@ public class ImageLoader {
      * @return bitmap, maybe null.
      *
      * 先从内存缓存尝试加载图片，找不到就去磁盘缓存拿，磁盘缓存拿不到就去网络拿
-     * 在子线程执行，主线程执行就抛异常（有一个检查当前线程的Looper是否为主线程的Looper的判断）
+     * 在子线程执行，主线程执行抛异常
      */
     public Bitmap loadBitmap(String uri, int reqWidth, int reqHeight) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -275,7 +368,6 @@ public class ImageLoader {
         HttpURLConnection urlConnection = null;
         BufferedOutputStream out = null;
         BufferedInputStream in = null;
-
         try {
             final URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
