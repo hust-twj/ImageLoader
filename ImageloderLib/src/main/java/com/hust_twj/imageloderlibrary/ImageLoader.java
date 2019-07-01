@@ -21,6 +21,7 @@ import com.hust_twj.imageloderlibrary.cache.IOUtil;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
+import com.hust_twj.imageloderlibrary.request.LoaderRequest;
 import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
 import com.hust_twj.imageloderlibrary.utils.ImageResizer;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
@@ -91,13 +92,13 @@ public class ImageLoader {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case MESSAGE_LOAD_IMAGE:
-                    LoaderResult result = (LoaderResult) msg.obj;
-                    ImageView imageView = result.imageView;
+                    LoaderRequest result = (LoaderRequest) msg.obj;
+                    ImageView imageView = result.mImageView;
                     String uri = (String) imageView.getTag(URI_TAG);
                     if (uri.equals(result.uri)) {
-                        imageView.setImageBitmap(result.bitmap);
+                        imageView.setImageBitmap(result.mBitmap);
                         if (mListener != null) {
-                            mListener.onResourceReady(result.bitmap, uri);
+                            mListener.onResourceReady(result.mBitmap, uri);
                         }
                     } else {
                         Log.w(TAG, "set image bitmap,but url has changed , ignored!");
@@ -188,18 +189,21 @@ public class ImageLoader {
             @Override
             public void run() {
                 Bitmap bitmap;
-                if (isLocalImage(uri) ) {
+                //加载本地图片
+                if (isLocalImage(uri)) {
                     bitmap = loadLocalImage(uri, imageView);
                 }else {
+                    //加载网络图片
                     bitmap = loadBitmap(uri, reqWidth, reqHeight);
                 }
                 if (bitmap != null) {
                     Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
-                    LoaderResult result = new LoaderResult(imageView, uri, bitmap);
+                    LoaderRequest result = new LoaderRequest()
+                            .setBitmap(bitmap)
+                            .setImageView(imageView)
+                            .setUri(uri);
                     Message message =  mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result);
                     mMainHandler.sendMessage(message);
-                   /* mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result)
-                            .sendToTarget();*/
                 }
             }
         };
@@ -498,21 +502,6 @@ public class ImageLoader {
             IOUtil.close(in);
         }
         return bitmap;
-    }
-
-    private static class LoaderResult {
-
-        private ImageView imageView;
-        private String uri;
-        private Bitmap bitmap;
-
-        private LoaderResult(ImageView imageView, String uri, Bitmap bitmap) {
-            super();
-            this.imageView = imageView;
-            this.uri = uri;
-            this.bitmap = bitmap;
-        }
-
     }
 
 }
