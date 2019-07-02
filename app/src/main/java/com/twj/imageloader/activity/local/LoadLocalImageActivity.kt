@@ -31,5 +31,9 @@ class LoadLocalImageActivity : AppCompatActivity() {
         tv_load_webp.setOnClickListener {
             startActivity(Intent(this@LoadLocalImageActivity, LocalWebpActivity::class.java))
         }
+
+        tv_open_album.setOnClickListener {
+            startActivity(Intent(this@LoadLocalImageActivity, LocalAlbumActivity::class.java))
+        }
     }
 }

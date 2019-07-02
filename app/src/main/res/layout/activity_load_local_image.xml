@@ -51,4 +51,17 @@
         android:layout_height="1dp"
         android:background="@color/colorAccent"/>
 
+    <TextView
+        android:id="@+id/tv_open_album"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:gravity="center"
+        android:text="打开相册图片"
+        android:background="#eeeeee"
+        android:layout_marginTop="80dp"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorAccent"/>
+
 </LinearLayout>

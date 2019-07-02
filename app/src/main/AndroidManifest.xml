@@ -32,6 +32,7 @@
         <activity android:name=".activity.local.LocalJpgActivity"/>
         <activity android:name=".activity.local.LocalPngActivity"/>
         <activity android:name=".activity.local.LocalWebpActivity"/>
+        <activity android:name=".activity.local.LocalAlbumActivity"/>
 
     </application>
 

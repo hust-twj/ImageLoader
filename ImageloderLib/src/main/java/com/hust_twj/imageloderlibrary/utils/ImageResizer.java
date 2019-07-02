@@ -30,8 +30,7 @@ public class ImageResizer {
 	
 		BitmapFactory.decodeFileDescriptor(fd, null, options);
 		
-		options.inSampleSize = calculateInSampleSize(options, reqWidth,
-				reqHeight);
+		options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
 
 		options.inJustDecodeBounds = false;
 		return BitmapFactory.decodeFileDescriptor(fd, null, options);

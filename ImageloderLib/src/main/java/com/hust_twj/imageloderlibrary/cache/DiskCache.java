@@ -31,7 +31,7 @@ public class DiskCache implements BitmapCache {
     /**
      * 缓存最大值
      */
-    private static final int MAX_DISK_CACHE_SIZE = 50 * 1024 * 1024;
+    private static final int MAX_DISK_CACHE_SIZE = 100 * 1024 * 1024;
 
     public DiskCache(Context context) {
         initDiskCache(context);
