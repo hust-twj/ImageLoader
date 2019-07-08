@@ -25,7 +25,12 @@ public class ImageLoaderConfig {
      */
     public int threadCount = Runtime.getRuntime().availableProcessors() + 1;
 
-    public ImageLoaderConfig setThreadCount(int count) {
+    public ImageLoaderConfig cache(BitmapCache cache) {
+        bitmapCache = cache;
+        return this;
+    }
+
+    public ImageLoaderConfig threadCount(int count) {
         threadCount = Math.max(1, count);
         return this;
     }

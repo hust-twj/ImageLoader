@@ -69,6 +69,9 @@ public class ImageLoader {
     private static final int URI_TAG = R.id.image_loader_uri;
     private static final int IO_BUFFER_SIZE = 8 * 1024;
 
+    private static final int  DEFAULT_WIDTH = 200;
+    private static final int  DEFAULT_HEIGHT = 200;
+
     private Context mContext;
 
     private ImageLoadListener  mListener;
@@ -101,7 +104,7 @@ public class ImageLoader {
                             mListener.onResourceReady(result.mBitmap, uri);
                         }
                     } else {
-                        Log.w(TAG, "set image bitmap,but url has changed , ignored!");
+                        Log.w(TAG, "uri不相等");
                     }
                     break;
                 default:
@@ -112,25 +115,9 @@ public class ImageLoader {
 
     private ImageLoader(Context context) {
         mContext = context.getApplicationContext();
-        init();
     }
 
-    private void init(/*ImageLoaderConfig config*/) {
-        //mConfig = config;
-        ///mMemoryCache = config.bitmapCache;
-        if (mMemoryCache == null) {
-            mMemoryCache = new MemoryCache();
-        }
-        if (mDiskCache == null) {
-            mDiskCache = new DiskCache(mContext);
-        }
-    }
-
-    public static ImageLoader build(Context context) {
-        return getInstance(context);
-    }
-
-    private static ImageLoader getInstance(Context context) {
+    public static ImageLoader with(Context context) {
         if (sInstance == null) {
             synchronized (ImageLoader.class) {
                 if (sInstance == null) {
@@ -139,6 +126,17 @@ public class ImageLoader {
             }
         }
         return sInstance;
+    }
+
+    public void init(ImageLoaderConfig config) {
+        mConfig = config;
+        //mMemoryCache = config.bitmapCache;
+        if (mMemoryCache == null) {
+            mMemoryCache = new MemoryCache();
+        }
+        if (mDiskCache == null) {
+            mDiskCache = new DiskCache(mContext);
+        }
     }
 
     /**
@@ -165,7 +163,7 @@ public class ImageLoader {
     }
 
     public ImageLoader load(final String uri, final ImageView imageView){
-        return load(uri, imageView, 200, 200);
+        return load(uri, imageView, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
     /**
      * 异步加载网络图片
@@ -329,24 +327,22 @@ public class ImageLoader {
         if (bitmap != null) {
             return bitmap;
         }
-        try {
-            bitmap = loadBitmapForDiskCache(uri, reqWidth, reqHeight);
-            if (bitmap != null) {
-                return bitmap;
-            }
+        bitmap = loadBitmapForDiskCache(uri, reqWidth, reqHeight);
+        if (bitmap != null) {
+            return bitmap;
+        }
+       /* try {
+
             bitmap = loadBitmapFromHttp(uri, reqWidth, reqHeight);
             Log.d(TAG, "loadBitmapFromHttp,url:" + uri);
         } catch (IOException e) {
             e.printStackTrace();
-        }
-        if (bitmap == null) {
-            Log.w(TAG, "encounter error, DiskLruCache is not created.");
-            bitmap = downloadBitmapFromUrl(uri);
-        }
+        }*/
+        bitmap = downloadBitmapFromUrl(uri);
         return bitmap;
     }
 
-    private Bitmap loadBitmapFromHttp(String url, int reqWidth, int reqHeight) throws IOException {
+    /*private Bitmap loadBitmapFromHttp(String url, int reqWidth, int reqHeight) throws IOException {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new RuntimeException("需要在子线程中执行");
         }
@@ -366,7 +362,7 @@ public class ImageLoader {
             mDiskCache.getDiskLruCache().flush();
         }
         return loadBitmapForDiskCache(url, reqWidth, reqHeight);
-    }
+    }*/
 
     public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
         HttpURLConnection urlConnection = null;
@@ -406,6 +402,9 @@ public class ImageLoader {
             bitmap = BitmapFactory.decodeStream(in);
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap: " + e);
+            if (mListener != null) {
+                mListener.onFailure(e);
+            }
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();

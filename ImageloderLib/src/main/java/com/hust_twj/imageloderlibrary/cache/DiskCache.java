@@ -27,6 +27,8 @@ public class DiskCache implements BitmapCache {
 
     private DiskLruCache mDiskLruCache;
 
+    private static DiskCache mDiskCache;
+
     private static final String IMAGE_DISK_CACHE = "bitmap";
     /**
      * 缓存最大值
@@ -54,6 +56,19 @@ public class DiskCache implements BitmapCache {
     public DiskLruCache getDiskLruCache(){
         return mDiskLruCache;
     }
+
+    public static DiskCache getDiskCache(Context context) {
+        if (mDiskCache == null) {
+            synchronized (DiskCache.class) {
+                if (mDiskCache == null) {
+                    mDiskCache = new DiskCache(context);
+                }
+            }
+
+        }
+        return mDiskCache;
+    }
+
 
     private int getAppVersion(Context context) {
         try {

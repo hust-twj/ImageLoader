@@ -1,6 +1,7 @@
 package com.twj.imageloader.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +10,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
+import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
 import com.twj.imageloader.R;
+import com.twj.imageloader.utils.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -53,7 +56,20 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         holder.mTvPhoto.post(new Runnable() {
             @Override
             public void run() {
-                ImageLoader.build(mContext).load(url, holder.mTvPhoto, holder.mTvPhoto.getWidth(), holder.mTvPhoto.getHeight());
+                ImageLoader.with(mContext)
+                        .load(url, holder.mTvPhoto, holder.mTvPhoto.getWidth(), holder.mTvPhoto.getHeight())
+                .onLoadListener(new ImageLoadListener() {
+                    @Override
+                    public void onResourceReady(Bitmap bitmap, String uri) {
+
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        LogUtils.e("error_twj123" , " 错误位置：  " + position + "   " + e.toString());
+
+                    }
+                });
             }
         });
 
