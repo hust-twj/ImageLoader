@@ -27,12 +27,10 @@ import com.hust_twj.imageloderlibrary.utils.ImageResizer;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Executor;
@@ -59,8 +57,12 @@ public class ImageLoader {
     private DiskCache mDiskCache;
 
     private static final String TAG = "ImageLoader";
-
-    private static final int MESSAGE_LOAD_IMAGE = 1;
+    //加载本地图片
+    private static final int MESSAGE_LOAD_LOCAL_IMAGE = 0;
+    //加载网络图片--加载中
+    private static final int MESSAGE_LOADING_REMOTE_IMAGE = 1;
+    //加载网络图片--加载结束
+    private static final int MESSAGE_LOADED_REMOTE_IMAGE = 2;
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
     private static final int MAX_POOL_SIZE = CPU_COUNT * 2 + 1;
@@ -93,24 +95,59 @@ public class ImageLoader {
 
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what != MESSAGE_LOAD_IMAGE) {
-                return;
-            }
-            LoaderRequest result = (LoaderRequest) msg.obj;
-            ImageView imageView = result.mImageView;
-            String uri = (String) imageView.getTag(URI_TAG);
-            if (result.mBitmap != null) {
-                if (uri.equals(result.uri)) {
-                    imageView.setImageBitmap(result.mBitmap);
-                    if (mListener != null) {
-                        mListener.onResourceReady(result.mBitmap, uri);
+            switch (msg.what) {
+                case MESSAGE_LOAD_LOCAL_IMAGE:{
+                    LoaderRequest result = (LoaderRequest) msg.obj;
+                    ImageView imageView = result.mImageView;
+                    String uri = (String) imageView.getTag(URI_TAG);
+                    if (result.mBitmap != null) {
+                        if (uri.equals(result.uri)) {
+                            imageView.setImageBitmap(result.mBitmap);
+                            if (mListener != null) {
+                                mListener.onResourceReady(result.mBitmap, uri);
+                            }
+                        } else {
+                            Log.w(TAG, "uri不相等");
+                        }
                     }
-                } else {
-                    Log.w(TAG, "uri不相等");
                 }
-            }else if (mConfig.displayConfig != null){
-                imageView.setImageResource(mConfig.displayConfig.failedResId);
+                    break;
+                case MESSAGE_LOADING_REMOTE_IMAGE:{
+                    if (mConfig == null || mConfig.displayConfig == null) {
+                        return;
+                    }
+                    LoaderRequest result = (LoaderRequest) msg.obj;
+                    ImageView imageView = result.mImageView;
+                    String uri = (String) imageView.getTag(URI_TAG);
+                    if (uri.equals(result.uri)) {
+                        imageView.setImageResource(mConfig.displayConfig.loadingResId);
+                    }
+
+                 }
+                    break;
+                case MESSAGE_LOADED_REMOTE_IMAGE: {
+                    LoaderRequest result = (LoaderRequest) msg.obj;
+                    ImageView imageView = result.mImageView;
+                    String uri = (String) imageView.getTag(URI_TAG);
+                    if (result.mBitmap != null) {
+                        if (uri.equals(result.uri)) {
+                            imageView.setImageBitmap(result.mBitmap);
+                            if (mListener != null) {
+                                mListener.onResourceReady(result.mBitmap, uri);
+                            }
+                        } else {
+                            Log.w(TAG, "uri不相等");
+                        }
+                    } else if (mConfig != null && mConfig.displayConfig != null) {
+                        imageView.setImageResource(mConfig.displayConfig.failedResId);
+                    }
+                }
+                    break;
+                 default:
+                    break;
             }
+
+
         }
     };
 
@@ -175,6 +212,16 @@ public class ImageLoader {
                             final int reqWidth, final int reqHeight) {
         imageView.setTag(URI_TAG, uri);
         Bitmap bitmap;
+        //加载本地图片
+        if (isLocalImage(uri)) {
+            bitmap = loadLocalImage(uri, imageView);
+            LoaderRequest local = new LoaderRequest()
+                    .setBitmap(bitmap)
+                    .setImageView(imageView)
+                    .setUri(uri);
+            mMainHandler.obtainMessage(MESSAGE_LOAD_LOCAL_IMAGE, local).sendToTarget();
+            return this;
+        }
         bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
@@ -187,21 +234,20 @@ public class ImageLoader {
 
             @Override
             public void run() {
+                Message message;
+                LoaderRequest result;
                 Bitmap bitmap;
-                //加载本地图片
-                if (isLocalImage(uri)) {
-                    bitmap = loadLocalImage(uri, imageView);
-                }else {
-                    //加载网络图片
-                    bitmap = loadBitmap(uri, reqWidth, reqHeight);
-                }
+
+
+                //加载网络图片
+                bitmap = loadBitmap(imageView, uri, reqWidth, reqHeight);
                 Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
-                LoaderRequest result = new LoaderRequest()
+                result = new LoaderRequest()
                         .setBitmap(bitmap)
                         .setImageView(imageView)
                         .setUri(uri);
-                Message message =  mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result);
-                mMainHandler.sendMessage(message);
+                 message = mMainHandler.obtainMessage(MESSAGE_LOADED_REMOTE_IMAGE, result);
+                 mMainHandler.sendMessage(message);
             }
         };
         THREAD_POOL_EXECUTOR.execute(downloadTask);
@@ -315,7 +361,7 @@ public class ImageLoader {
      * @return bitmap, maybe null.
      *
      */
-    public Bitmap loadBitmap(String uri, int reqWidth, int reqHeight) {
+    public Bitmap loadBitmap(ImageView imageView, String uri, int reqWidth, int reqHeight) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new RuntimeException("需要在子线程中执行");
         }
@@ -327,6 +373,11 @@ public class ImageLoader {
         if (bitmap != null) {
             return bitmap;
         }
+        //加载中
+        LoaderRequest result = new LoaderRequest()
+                .setImageView(imageView)
+                .setUri(uri);
+        mMainHandler.obtainMessage(MESSAGE_LOADING_REMOTE_IMAGE, result).sendToTarget();
         bitmap = downloadBitmapFromUrl(uri);
         return bitmap;
     }
@@ -370,6 +421,8 @@ public class ImageLoader {
      * 从网络加载图片
      */
     private Bitmap downloadBitmapFromUrl(String urlString) {
+         long currentTime= System.currentTimeMillis();
+        Log.e("twj125", currentTime +"");
         Bitmap bitmap = null;
         HttpURLConnection urlConnection = null;
         BufferedInputStream in = null;
@@ -378,6 +431,16 @@ public class ImageLoader {
             urlConnection = (HttpURLConnection) url.openConnection();
             in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
             bitmap = BitmapFactory.decodeStream(in);
+            if (bitmap != null) {
+                String key = Md5Utils.toMD5(urlString);
+                if (mMemoryCache != null)  {
+                    mMemoryCache.put(key, bitmap);
+                }
+                if (mDiskCache != null) {
+                    mDiskCache.put(key, bitmap);
+                }
+            }
+            Log.e("twj125", System.currentTimeMillis() + "  耗时" +( System.currentTimeMillis() - currentTime) +"");
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap: " + e);
             if (mListener != null) {
