@@ -93,22 +93,23 @@ public class ImageLoader {
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_LOAD_IMAGE:
-                    LoaderRequest result = (LoaderRequest) msg.obj;
-                    ImageView imageView = result.mImageView;
-                    String uri = (String) imageView.getTag(URI_TAG);
-                    if (uri.equals(result.uri)) {
-                        imageView.setImageBitmap(result.mBitmap);
-                        if (mListener != null) {
-                            mListener.onResourceReady(result.mBitmap, uri);
-                        }
-                    } else {
-                        Log.w(TAG, "uri不相等");
+            if (msg.what != MESSAGE_LOAD_IMAGE) {
+                return;
+            }
+            LoaderRequest result = (LoaderRequest) msg.obj;
+            ImageView imageView = result.mImageView;
+            String uri = (String) imageView.getTag(URI_TAG);
+            if (result.mBitmap != null) {
+                if (uri.equals(result.uri)) {
+                    imageView.setImageBitmap(result.mBitmap);
+                    if (mListener != null) {
+                        mListener.onResourceReady(result.mBitmap, uri);
                     }
-                    break;
-                default:
-                break;
+                } else {
+                    Log.w(TAG, "uri不相等");
+                }
+            }else if (mConfig.displayConfig != null){
+                imageView.setImageResource(mConfig.displayConfig.failedResId);
             }
         }
     };
@@ -194,15 +195,13 @@ public class ImageLoader {
                     //加载网络图片
                     bitmap = loadBitmap(uri, reqWidth, reqHeight);
                 }
-                if (bitmap != null) {
-                    Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
-                    LoaderRequest result = new LoaderRequest()
-                            .setBitmap(bitmap)
-                            .setImageView(imageView)
-                            .setUri(uri);
-                    Message message =  mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result);
-                    mMainHandler.sendMessage(message);
-                }
+                Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
+                LoaderRequest result = new LoaderRequest()
+                        .setBitmap(bitmap)
+                        .setImageView(imageView)
+                        .setUri(uri);
+                Message message =  mMainHandler.obtainMessage(MESSAGE_LOAD_IMAGE, result);
+                mMainHandler.sendMessage(message);
             }
         };
         THREAD_POOL_EXECUTOR.execute(downloadTask);
@@ -262,7 +261,6 @@ public class ImageLoader {
         return imagePath;
     }
 
-
     /**
      * 根据Uri来获取到图片对应的真实路径
      */
@@ -310,14 +308,12 @@ public class ImageLoader {
 
     /**
      *
-     * 同步加载  （依次从内存缓存、磁盘缓存、网络中加载）
+     * 同步加载  （依次从内存缓存、磁盘缓存、网络中加载）在子线程执行，主线程执行抛异常
      * @param uri http url
      * @param reqWidth ImageView宽度
      * @param reqHeight ImageView高度
      * @return bitmap, maybe null.
      *
-     * 先从内存缓存尝试加载图片，找不到就去磁盘缓存拿，磁盘缓存拿不到就去网络拿
-     * 在子线程执行，主线程执行抛异常
      */
     public Bitmap loadBitmap(String uri, int reqWidth, int reqHeight) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -331,66 +327,48 @@ public class ImageLoader {
         if (bitmap != null) {
             return bitmap;
         }
-       /* try {
-
-            bitmap = loadBitmapFromHttp(uri, reqWidth, reqHeight);
-            Log.d(TAG, "loadBitmapFromHttp,url:" + uri);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
         bitmap = downloadBitmapFromUrl(uri);
         return bitmap;
     }
 
-    /*private Bitmap loadBitmapFromHttp(String url, int reqWidth, int reqHeight) throws IOException {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw new RuntimeException("需要在子线程中执行");
-        }
+    /**
+     * 从内存缓存中加载图片
+     */
+    private Bitmap loadBitmapFromMemoryCache(String url) {
+        final String key = Md5Utils.toMD5(url);
+        return mMemoryCache.get(key);
+    }
+
+    /**
+     * 从磁盘缓存中加载图片
+     */
+    private Bitmap loadBitmapForDiskCache(String url, int reqWidth, int reqHeight) {
         if (mDiskCache == null || mDiskCache.getDiskLruCache() == null) {
             return null;
         }
-
+        Bitmap bitmap = null;
         String key = Md5Utils.toMD5(url);
-        DiskLruCache.Editor editor = mDiskCache.getDiskLruCache().edit(key);
-        if (editor != null) {
-            OutputStream outputStream = editor.newOutputStream(0);
-            if (downloadUrlToStream(url, outputStream)) {
-                editor.commit();
-            } else {
-                editor.abort();
-            }
-            mDiskCache.getDiskLruCache().flush();
-        }
-        return loadBitmapForDiskCache(url, reqWidth, reqHeight);
-    }*/
-
-    public boolean downloadUrlToStream(String urlString, OutputStream outputStream) {
-        HttpURLConnection urlConnection = null;
-        BufferedOutputStream out = null;
-        BufferedInputStream in = null;
         try {
-            final URL url = new URL(urlString);
-            urlConnection = (HttpURLConnection) url.openConnection();
-            in = new BufferedInputStream(urlConnection.getInputStream(), IO_BUFFER_SIZE);
-            out = new BufferedOutputStream(outputStream, IO_BUFFER_SIZE);
-
-            int b;
-            while ((b = in.read()) != -1) {
-                out.write(b);
+            DiskLruCache.Snapshot snapshot = mDiskCache.getDiskLruCache().get(key);
+            if (snapshot != null) {
+                FileInputStream fileInputStream  = (FileInputStream) snapshot.getInputStream(0);
+                FileDescriptor fileDescriptor = fileInputStream.getFD();
+                bitmap = ImageResizer.decodeBitmapFromFileDescriptor(fileDescriptor,
+                        reqWidth, reqHeight);
+                if (bitmap != null && mMemoryCache != null) {
+                    mMemoryCache.put(key, bitmap);
+                }
             }
-            return true;
         } catch (IOException e) {
-            Log.e(TAG, "downloadBitmap failed." + e);
-        } finally {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            IOUtil.close(out);
-            IOUtil.close(in);
+            Log.e(TAG,"get diskCache exception: " + e);
+            e.printStackTrace();
         }
-        return false;
+        return bitmap;
     }
 
+    /**
+     * 从网络加载图片
+     */
     private Bitmap downloadBitmapFromUrl(String urlString) {
         Bitmap bitmap = null;
         HttpURLConnection urlConnection = null;
@@ -413,45 +391,10 @@ public class ImageLoader {
         }
         return bitmap;
     }
+
     public ImageLoader onLoadListener(ImageLoadListener loadListener){
         mListener = loadListener;
         return this;
-    }
-
-    /**
-     * 从内存缓存中加载图片
-     */
-    private Bitmap loadBitmapFromMemoryCache(String url) {
-        final String key = Md5Utils.toMD5(url);
-        return mMemoryCache.get(key);
-    }
-
-    /**
-     * 从磁盘缓存中加载图片
-     */
-    private Bitmap loadBitmapForDiskCache(String url, int reqWidth, int reqHeight) {
-        if (mDiskCache == null || mDiskCache.getDiskLruCache() == null) {
-            return null;
-        }
-
-        Bitmap bitmap = null;
-        String key = Md5Utils.toMD5(url);
-        try {
-            DiskLruCache.Snapshot snapshot = mDiskCache.getDiskLruCache().get(key);
-            if (snapshot != null) {
-                FileInputStream fileInputStream  = (FileInputStream) snapshot.getInputStream(0);
-                FileDescriptor fileDescriptor = fileInputStream.getFD();
-                bitmap = ImageResizer.decodeBitmapFromFileDescriptor(fileDescriptor,
-                        reqWidth, reqHeight);
-                if (bitmap != null && mMemoryCache != null) {
-                    mMemoryCache.put(key, bitmap);
-                }
-            }
-        } catch (IOException e) {
-            Log.e(TAG,"get diskCache exception: " + e);
-            e.printStackTrace();
-        }
-        return bitmap;
     }
 
     /**
