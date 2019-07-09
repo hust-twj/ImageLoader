@@ -71,12 +71,12 @@ public class ImageLoader {
     private static final int URI_TAG = R.id.image_loader_uri;
     private static final int IO_BUFFER_SIZE = 8 * 1024;
 
-    private static final int  DEFAULT_WIDTH = 200;
-    private static final int  DEFAULT_HEIGHT = 200;
+    private static final int DEFAULT_WIDTH = 200;
+    private static final int DEFAULT_HEIGHT = 200;
 
     private Context mContext;
 
-    private ImageLoadListener  mListener;
+    private ImageLoadListener mListener;
 
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
         private final AtomicInteger mCount = new AtomicInteger();
@@ -96,7 +96,7 @@ public class ImageLoader {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MESSAGE_LOAD_LOCAL_IMAGE:{
+                case MESSAGE_LOAD_LOCAL_IMAGE: {
                     LoaderRequest result = (LoaderRequest) msg.obj;
                     ImageView imageView = result.mImageView;
                     String uri = (String) imageView.getTag(URI_TAG);
@@ -111,8 +111,8 @@ public class ImageLoader {
                         }
                     }
                 }
-                    break;
-                case MESSAGE_LOADING_REMOTE_IMAGE:{
+                break;
+                case MESSAGE_LOADING_REMOTE_IMAGE: {
                     if (mConfig == null || mConfig.displayConfig == null) {
                         return;
                     }
@@ -123,8 +123,8 @@ public class ImageLoader {
                         imageView.setImageResource(mConfig.displayConfig.loadingResId);
                     }
 
-                 }
-                    break;
+                }
+                break;
                 case MESSAGE_LOADED_REMOTE_IMAGE: {
                     LoaderRequest result = (LoaderRequest) msg.obj;
                     ImageView imageView = result.mImageView;
@@ -142,8 +142,8 @@ public class ImageLoader {
                         imageView.setImageResource(mConfig.displayConfig.failedResId);
                     }
                 }
-                    break;
-                 default:
+                break;
+                default:
                     break;
             }
 
@@ -179,33 +179,36 @@ public class ImageLoader {
 
     /**
      * 加载本地图片
-     * @param resID 本地图片资源ID
+     *
+     * @param resID     本地图片资源ID
      * @param imageView ImageView
      */
     public ImageLoader load(final int resID, final ImageView imageView) {
-        try{
+        try {
             Resources res = imageView.getContext().getResources();
             Bitmap bitmap = BitmapFactory.decodeResource(res, resID);
             imageView.setImageBitmap(bitmap);
 
             if (bitmap != null && mListener != null) {
-                mListener.onResourceReady(bitmap,"");
+                mListener.onResourceReady(bitmap, "");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-            if ( mListener != null) {
+            if (mListener != null) {
                 mListener.onFailure(e);
             }
         }
         return this;
     }
 
-    public ImageLoader load(final String uri, final ImageView imageView){
+    public ImageLoader load(final String uri, final ImageView imageView) {
         return load(uri, imageView, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
+
     /**
      * 异步加载网络图片
-     * @param uri 资源ID
+     *
+     * @param uri       资源ID
      * @param imageView ImageView
      */
     public ImageLoader load(final String uri, final ImageView imageView,
@@ -241,13 +244,13 @@ public class ImageLoader {
 
                 //加载网络图片
                 bitmap = loadBitmap(imageView, uri, reqWidth, reqHeight);
-                Log.e("twj125",Thread.currentThread().getName() + "   download success:  " + uri + " ");
+                Log.e("twj125", Thread.currentThread().getName() + "   download success:  " + uri + " ");
                 result = new LoaderRequest()
                         .setBitmap(bitmap)
                         .setImageView(imageView)
                         .setUri(uri);
-                 message = mMainHandler.obtainMessage(MESSAGE_LOADED_REMOTE_IMAGE, result);
-                 mMainHandler.sendMessage(message);
+                message = mMainHandler.obtainMessage(MESSAGE_LOADED_REMOTE_IMAGE, result);
+                mMainHandler.sendMessage(message);
             }
         };
         THREAD_POOL_EXECUTOR.execute(downloadTask);
@@ -256,10 +259,11 @@ public class ImageLoader {
 
     /**
      * 加载本地图片
+     *
      * @param uri uri
      * @return Bitmap
      */
-    private Bitmap loadLocalImage(String uri, ImageView imageView){
+    private Bitmap loadLocalImage(String uri, ImageView imageView) {
         final String imagePath = getImagePath(mContext, uri);
         final File imgFile = new File(imagePath);
         if (!imgFile.exists()) {
@@ -275,8 +279,8 @@ public class ImageLoader {
             }
         };
         Bitmap bitmap = decoder.decodeBitmap(imageView.getWidth(), imageView.getHeight());
-        if (bitmap != null  && mDiskCache != null)  {
-            String key =  Md5Utils.toMD5(uri);
+        if (bitmap != null && mDiskCache != null) {
+            String key = Md5Utils.toMD5(uri);
             mDiskCache.put(key, bitmap);
         }
         return bitmap;
@@ -348,18 +352,17 @@ public class ImageLoader {
         return path;
     }
 
-    private boolean isLocalImage(String uri){
+    private boolean isLocalImage(String uri) {
         return uri.startsWith("content") || uri.startsWith("file");
     }
 
     /**
-     *
      * 同步加载  （依次从内存缓存、磁盘缓存、网络中加载）在子线程执行，主线程执行抛异常
-     * @param uri http url
-     * @param reqWidth ImageView宽度
+     *
+     * @param uri       http url
+     * @param reqWidth  ImageView宽度
      * @param reqHeight ImageView高度
      * @return bitmap, maybe null.
-     *
      */
     public Bitmap loadBitmap(ImageView imageView, String uri, int reqWidth, int reqHeight) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -402,7 +405,7 @@ public class ImageLoader {
         try {
             DiskLruCache.Snapshot snapshot = mDiskCache.getDiskLruCache().get(key);
             if (snapshot != null) {
-                FileInputStream fileInputStream  = (FileInputStream) snapshot.getInputStream(0);
+                FileInputStream fileInputStream = (FileInputStream) snapshot.getInputStream(0);
                 FileDescriptor fileDescriptor = fileInputStream.getFD();
                 bitmap = ImageResizer.decodeBitmapFromFileDescriptor(fileDescriptor,
                         reqWidth, reqHeight);
@@ -411,7 +414,7 @@ public class ImageLoader {
                 }
             }
         } catch (IOException e) {
-            Log.e(TAG,"get diskCache exception: " + e);
+            Log.e(TAG, "get diskCache exception: " + e);
             e.printStackTrace();
         }
         return bitmap;
@@ -421,8 +424,8 @@ public class ImageLoader {
      * 从网络加载图片
      */
     private Bitmap downloadBitmapFromUrl(String urlString) {
-         long currentTime= System.currentTimeMillis();
-        Log.e("twj125", currentTime +"");
+        long currentTime = System.currentTimeMillis();
+        Log.e("twj125", currentTime + "");
         Bitmap bitmap = null;
         HttpURLConnection urlConnection = null;
         BufferedInputStream in = null;
@@ -433,14 +436,14 @@ public class ImageLoader {
             bitmap = BitmapFactory.decodeStream(in);
             if (bitmap != null) {
                 String key = Md5Utils.toMD5(urlString);
-                if (mMemoryCache != null)  {
+                if (mMemoryCache != null) {
                     mMemoryCache.put(key, bitmap);
                 }
                 if (mDiskCache != null) {
                     mDiskCache.put(key, bitmap);
                 }
             }
-            Log.e("twj125", System.currentTimeMillis() + "  耗时" +( System.currentTimeMillis() - currentTime) +"");
+            Log.e("twj125", System.currentTimeMillis() + "  耗时" + (System.currentTimeMillis() - currentTime) + "");
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap: " + e);
             if (mListener != null) {
@@ -455,18 +458,19 @@ public class ImageLoader {
         return bitmap;
     }
 
-    public ImageLoader onLoadListener(ImageLoadListener loadListener){
+    public ImageLoader onLoadListener(ImageLoadListener loadListener) {
         mListener = loadListener;
         return this;
     }
 
     /**
-     *  将下载的图片写入磁盘中，实现磁盘缓存
+     * 将下载的图片写入磁盘中，实现磁盘缓存
+     *
      * @param urlString 图片链接
      * @return Bitmap
      */
     private Bitmap downloadBitmapFromUrl(String urlString, ImageView imageView) {
-        Log.e("twj1256","download -------" + urlString + "  " +imageView.getWidth() +"  " +imageView.getHeight());
+        Log.e("twj1256", "download -------" + urlString + "  " + imageView.getWidth() + "  " + imageView.getHeight());
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new RuntimeException("应在子线程访问网络");
         }
@@ -484,14 +488,14 @@ public class ImageLoader {
 
             if (bitmap != null) {
                 BitmapFactory.Options options = new BitmapFactory.Options();
-                Log.e("twj1256", "options begin   "+bitmap.getWidth() + "  " +bitmap.getHeight());
+                Log.e("twj1256", "options begin   " + bitmap.getWidth() + "  " + bitmap.getHeight());
                 options.outWidth = bitmap.getWidth();
                 options.outHeight = bitmap.getHeight();
                 BitmapDecoder.configBitmapOptions(options, imageView.getWidth(), imageView.getHeight());
-                Log.e("twj1256", "options end  "+bitmap.getWidth() + "  " +bitmap.getHeight());
+                Log.e("twj1256", "options end  " + bitmap.getWidth() + "  " + bitmap.getHeight());
 
                 String key = Md5Utils.toMD5(urlString);
-                if (mMemoryCache != null)  {
+                if (mMemoryCache != null) {
                     mMemoryCache.put(key, bitmap);
                 }
                 if (mDiskCache != null) {

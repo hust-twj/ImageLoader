@@ -5,6 +5,7 @@ import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 
 /**
  * ImageLoader的配置类
+ *
  * @author hust_twj
  * @date 2019/6/11
  */

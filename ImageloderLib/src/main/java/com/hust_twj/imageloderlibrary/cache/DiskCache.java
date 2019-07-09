@@ -48,12 +48,12 @@ public class DiskCache implements BitmapCache {
             mDiskLruCache = DiskLruCache.open(cacheDir, getAppVersion(context),
                     1, MAX_DISK_CACHE_SIZE);
         } catch (IOException e) {
-            Log.e(TAG,"initDiskCache Exception: " + e);
+            Log.e(TAG, "initDiskCache Exception: " + e);
             e.printStackTrace();
         }
     }
 
-    public DiskLruCache getDiskLruCache(){
+    public DiskLruCache getDiskLruCache() {
         return mDiskLruCache;
     }
 
@@ -75,7 +75,7 @@ public class DiskCache implements BitmapCache {
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return info.versionCode;
         } catch (Exception e) {
-            Log.e(TAG,"getAppVersion Exception: " + e);
+            Log.e(TAG, "getAppVersion Exception: " + e);
             e.printStackTrace();
         }
         return 1;
@@ -111,7 +111,7 @@ public class DiskCache implements BitmapCache {
                 return BitmapFactory.decodeStream(in);
             }
         } catch (IOException e) {
-            Log.e(TAG,"get diskCache exception: " + e);
+            Log.e(TAG, "get diskCache exception: " + e);
             e.printStackTrace();
         }
         return null;
@@ -140,7 +140,7 @@ public class DiskCache implements BitmapCache {
                 IOUtil.closeQuietly(outputStream);
             }
         } catch (IOException e) {
-            Log.e(TAG,"put diskCache exception: " + e);
+            Log.e(TAG, "put diskCache exception: " + e);
             e.printStackTrace();
         }
     }
@@ -166,7 +166,7 @@ public class DiskCache implements BitmapCache {
         try {
             mDiskLruCache.remove(Md5Utils.toMD5(key));
         } catch (IOException e) {
-            Log.e(TAG,"remove diskCache exception: " + e);
+            Log.e(TAG, "remove diskCache exception: " + e);
             e.printStackTrace();
         }
     }

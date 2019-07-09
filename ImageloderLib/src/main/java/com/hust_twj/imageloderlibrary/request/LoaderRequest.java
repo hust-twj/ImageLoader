@@ -20,26 +20,27 @@ public class LoaderRequest {
 
     public Bitmap mBitmap;
 
-    public LoaderRequest setImageView(ImageView imageView){
+    public LoaderRequest setImageView(ImageView imageView) {
         this.mImageView = imageView;
         return this;
     }
 
-    public LoaderRequest setUri(String uri){
+    public LoaderRequest setUri(String uri) {
         this.uri = uri;
         return this;
     }
 
-    public LoaderRequest setDisplayConfig(DisplayConfig displayConfig){
+    public LoaderRequest setDisplayConfig(DisplayConfig displayConfig) {
         this.mDisplayConfig = displayConfig;
         return this;
     }
-    public LoaderRequest setImageLoadListener(ImageLoadListener imageLoadListener){
+
+    public LoaderRequest setImageLoadListener(ImageLoadListener imageLoadListener) {
         this.mImageLoadListener = imageLoadListener;
         return this;
     }
 
-    public LoaderRequest setBitmap(Bitmap bitmap){
+    public LoaderRequest setBitmap(Bitmap bitmap) {
         this.mBitmap = bitmap;
         return this;
     }

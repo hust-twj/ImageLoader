@@ -7,6 +7,7 @@ import android.util.Log;
 
 /**
  * 内存缓存（key为图片的uri，值为图片本身）
+ *
  * @author hust_twj
  * @date 2019/6/11
  */
@@ -25,11 +26,12 @@ public class MemoryCache implements BitmapCache {
             @Override
             protected int sizeOf(@NonNull String key, @NonNull Bitmap bitmap) {
                 //重写sizeOf，计算每张图片的占用字节数
-                Log.e("twjcache", "key: " + key  + "  " + bitmap.getByteCount() / 1024);
+                Log.e("twjcache", "key: " + key + "  " + bitmap.getByteCount() / 1024);
                 return bitmap.getByteCount() / 1024;
             }
         };
     }
+
     @Override
     public Bitmap get(String key) {
         return mMemoryCache.get(key);
