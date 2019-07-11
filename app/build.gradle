@@ -30,7 +30,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation  'com.android.support:recyclerview-v7:28.0.0'
 
-    implementation project(path: ':ImageloderLib')
+    implementation project(path: ':ImageloaderLib')
 
     implementation 'com.github.bumptech.glide:glide:4.9.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'

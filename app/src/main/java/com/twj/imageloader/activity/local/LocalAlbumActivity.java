@@ -135,7 +135,7 @@ public class LocalAlbumActivity extends AppCompatActivity {
 
     public void displayImage(String path) {
         if (path != null) {
-            ImageLoader.with(this).load(path, mIv);
+            ImageLoader.with().load(path, mIv);
            /* Bitmap bitmap = BitmapFactory.decodeFile(path);
             mIv.setImageBitmap(bitmap);*/
         } else {
@@ -150,7 +150,7 @@ public class LocalAlbumActivity extends AppCompatActivity {
         if (uri == null) {
             return;
         }
-        ImageLoader.with(this).load(uri.toString(), mIv);
+        ImageLoader.with().load(uri.toString(), mIv);
        // LiteImageLoader.getInstance().displayImage(mIv, uri.toString());
         /*if (DocumentsContract.isDocumentUri(LocalAlbumActivity.this, uri)) {
             //如果是document类型的Uri，那么通过document的id来处理

@@ -44,6 +44,6 @@ class MainActivity : AppCompatActivity() {
                 .error(R.drawable.img_error)
                 .cache(DoubleCache(this))
                 .threadCount(4)
-        ImageLoader.with(this).init(config)
+        ImageLoader.with().init(config)
     }
 }

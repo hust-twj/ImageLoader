@@ -23,7 +23,7 @@ public class LocalPngActivity extends AppCompatActivity {
 
         mIv = findViewById(R.id.iv_image);
 
-        ImageLoader.with(this).load(R.drawable.qianxun_png, mIv);
+        ImageLoader.with().load(R.drawable.qianxun_png, mIv);
 
     }
 }

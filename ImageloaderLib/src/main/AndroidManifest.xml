@@ -1,0 +1,11 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.hust_twj.imageloderlibrary">
+
+    <application>
+        <provider
+            android:name=".utils.LoaderProvider"
+            android:authorities="com.hust_twj.imageloderlibrary.utils.loaderProvider"
+            android:exported="false" />
+    </application>
+
+</manifest>

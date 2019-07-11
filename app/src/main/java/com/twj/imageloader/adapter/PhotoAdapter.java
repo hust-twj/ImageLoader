@@ -56,7 +56,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         holder.mTvPhoto.post(new Runnable() {
             @Override
             public void run() {
-                ImageLoader.with(mContext)
+                ImageLoader.with()
                         .load(url, holder.mTvPhoto, holder.mTvPhoto.getWidth(), holder.mTvPhoto.getHeight())
                 .onLoadListener(new ImageLoadListener() {
                     @Override

@@ -24,6 +24,7 @@ import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
 import com.hust_twj.imageloderlibrary.request.LoaderRequest;
 import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
 import com.hust_twj.imageloderlibrary.utils.ImageResizer;
+import com.hust_twj.imageloderlibrary.utils.LoaderProvider;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedInputStream;
@@ -46,7 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ImageLoader {
 
-    private static ImageLoader sInstance;
+    private static volatile ImageLoader sInstance;
 
     /**
      * 图片加载配置对象
@@ -155,11 +156,14 @@ public class ImageLoader {
         mContext = context.getApplicationContext();
     }
 
-    public static ImageLoader with(Context context) {
+    public static ImageLoader with() {
         if (sInstance == null) {
             synchronized (ImageLoader.class) {
                 if (sInstance == null) {
-                    sInstance = new ImageLoader(context);
+                    if (LoaderProvider.mContext == null) {
+                        throw new IllegalStateException("context == null");
+                    }
+                    sInstance = new ImageLoader(LoaderProvider.mContext);
                 }
             }
         }
