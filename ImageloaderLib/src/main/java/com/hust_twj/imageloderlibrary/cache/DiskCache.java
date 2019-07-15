@@ -139,7 +139,7 @@ public class DiskCache implements BitmapCache {
                 }
                 IOUtil.closeQuietly(outputStream);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(TAG, "put diskCache exception: " + e);
             e.printStackTrace();
         }
@@ -165,7 +165,7 @@ public class DiskCache implements BitmapCache {
     public void remove(String key) {
         try {
             mDiskLruCache.remove(Md5Utils.toMD5(key));
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(TAG, "remove diskCache exception: " + e);
             e.printStackTrace();
         }
@@ -176,11 +176,12 @@ public class DiskCache implements BitmapCache {
         if (mDiskLruCache == null) {
             return;
         }
-        /*try {
+        try {
             mDiskLruCache.delete();
-        } catch (IOException e) {
+            Log.e(TAG,"清除磁盘缓存成功");
+        } catch (Exception e) {
             e.printStackTrace();
-        }*/
+        }
     }
 
 

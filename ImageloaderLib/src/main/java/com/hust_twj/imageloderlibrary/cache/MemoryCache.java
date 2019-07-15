@@ -16,6 +16,7 @@ import java.util.Map;
  */
 public class MemoryCache implements BitmapCache {
 
+    private static final String TAG = "MemoryCache";
     private LruCache<String, Bitmap> mMemoryCache;
 
     public MemoryCache() {
@@ -23,13 +24,13 @@ public class MemoryCache implements BitmapCache {
         int totalMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         //取总内存的 1/8 的作为缓存
         int cacheSize = totalMemory / 8; //32768 --> 大约为30M
-        Log.e("twjcache", cacheSize + "");
+        Log.e(TAG, cacheSize + "");
         mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 
             @Override
             protected int sizeOf(@NonNull String key, @NonNull Bitmap bitmap) {
                 //重写sizeOf，计算每张图片的占用字节数
-                Log.e("twjcache", "key: " + key + "  " + bitmap.getByteCount() / 1024);
+                Log.e(TAG, "key: " + key + "  " + bitmap.getByteCount() / 1024);
                 return bitmap.getByteCount() / 1024;
             }
         };
@@ -60,8 +61,8 @@ public class MemoryCache implements BitmapCache {
             Map.Entry<String, Bitmap> entry = map.entrySet().iterator().next();
             map.remove(entry.getKey());
             mMemoryCache.remove(entry.getKey());
-            Log.e("clearCache", entry.getKey() + "  " + entry.getValue());
+            Log.e(TAG, entry.getKey() + "  " + entry.getValue());
         }
-
+        Log.e(TAG,"清除内存缓存成功");
     }
 }

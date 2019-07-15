@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -62,7 +63,7 @@ public class ImageLoader {
     //加载网络图片--加载结束
     private static final int MESSAGE_LOADED_REMOTE_IMAGE = 2;
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-    private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
+    private static final int CORE_POOL_SIZE = 1;
     private static final int MAX_POOL_SIZE = CPU_COUNT * 2 + 1;
     private static final long KEEP_ALIVE = 10L;
 
@@ -80,7 +81,7 @@ public class ImageLoader {
         private final AtomicInteger mCount = new AtomicInteger();
 
         @Override
-        public Thread newThread(Runnable r) {
+        public Thread newThread(@NonNull Runnable r) {
             return new Thread(r, "ImageLoader#" + mCount.getAndIncrement());
         }
     };
@@ -120,7 +121,6 @@ public class ImageLoader {
                     if (uri.equals(result.uri)) {
                         imageView.setImageResource(mConfig.displayConfig.loadingResId);
                     }
-
                 }
                 break;
                 case MESSAGE_LOADED_REMOTE_IMAGE: {
@@ -447,8 +447,8 @@ public class ImageLoader {
                     mDiskCache.put(key, bitmap);
                 }
             }
-            Log.e("twj125", System.currentTimeMillis() + "  加载网络图片耗时" +
-                    (System.currentTimeMillis() - currentTime));
+            Log.e("twj125", System.currentTimeMillis() + "  加载网络图片耗时：" +
+                    (System.currentTimeMillis() - currentTime) + "ms");
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap: " + e);
             if (mListener != null) {
