@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.twj.imageloader.R;
 
 import org.jetbrains.annotations.NotNull;

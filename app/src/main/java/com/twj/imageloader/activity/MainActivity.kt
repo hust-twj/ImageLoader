@@ -33,6 +33,12 @@ class MainActivity : AppCompatActivity() {
         tv_glide_list.setOnClickListener {
             startActivity(Intent(this@MainActivity, GlideListActivity::class.java))
         }
+
+        clean_cache.setOnClickListener {
+            ImageLoader.with().clearDiskCache()
+            ImageLoader.with().clearMemoryCache()
+        }
+
     }
 
     /**

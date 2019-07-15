@@ -3,6 +3,7 @@ package com.hust_twj.imageloderlibrary.utils;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 
 import java.io.FileDescriptor;
 
@@ -22,6 +23,19 @@ public class ImageResizer {
                 reqHeight);
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    public static Bitmap decodeBitmap(Bitmap bitmap, int reqWidth, int reqHeight) {
+        Matrix matrix = new Matrix();
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+
+        int inSampleSize= calculateInSampleSize(options, reqWidth, reqHeight);
+
+        matrix.setScale(1.0f / inSampleSize, 1.0f / inSampleSize);
+        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        return bitmap;
     }
 
     public static Bitmap decodeBitmapFromFileDescriptor(FileDescriptor fd, int reqWidth, int reqHeight) {

@@ -16,7 +16,6 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.cache.DiskCache;
-import com.hust_twj.imageloderlibrary.cache.DiskLruCache;
 import com.hust_twj.imageloderlibrary.cache.IOUtil;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig;
@@ -29,8 +28,6 @@ import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -148,7 +145,6 @@ public class ImageLoader {
                     break;
             }
 
-
         }
     };
 
@@ -206,7 +202,17 @@ public class ImageLoader {
     }
 
     public ImageLoader load(final String uri, final ImageView imageView) {
-        return load(uri, imageView, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+        imageView.post(new Runnable() {
+            @Override
+            public void run() {
+                int width, height;
+                width = (imageView.getWidth() == 0) ? DEFAULT_WIDTH : imageView.getWidth();
+                height = (imageView.getHeight() == 0) ? DEFAULT_HEIGHT : imageView.getHeight();
+                load(uri, imageView, width, height);
+            }
+        });
+
+        return this;
     }
 
     /**
@@ -406,22 +412,16 @@ public class ImageLoader {
         }
         Bitmap bitmap = null;
         String key = Md5Utils.toMD5(url);
-        try {
-            DiskLruCache.Snapshot snapshot = mDiskCache.getDiskLruCache().get(key);
-            if (snapshot != null) {
-                FileInputStream fileInputStream = (FileInputStream) snapshot.getInputStream(0);
-                FileDescriptor fileDescriptor = fileInputStream.getFD();
-                bitmap = ImageResizer.decodeBitmapFromFileDescriptor(fileDescriptor,
-                        reqWidth, reqHeight);
-                if (bitmap != null && mMemoryCache != null) {
-                    mMemoryCache.put(key, bitmap);
-                }
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "get diskCache exception: " + e);
-            e.printStackTrace();
+        if (mDiskCache != null) {
+            bitmap = mDiskCache.get(key);
         }
-        return bitmap;
+        if (bitmap != null && mMemoryCache != null) {
+            mMemoryCache.put(key, bitmap);
+        }
+        if (bitmap != null) {
+            return ImageResizer.decodeBitmap(bitmap, reqWidth, reqHeight);
+        }
+        return null;
     }
 
     /**
@@ -447,7 +447,8 @@ public class ImageLoader {
                     mDiskCache.put(key, bitmap);
                 }
             }
-            Log.e("twj125", System.currentTimeMillis() + "  耗时" + (System.currentTimeMillis() - currentTime) + "");
+            Log.e("twj125", System.currentTimeMillis() + "  加载网络图片耗时" +
+                    (System.currentTimeMillis() - currentTime));
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap: " + e);
             if (mListener != null) {
@@ -515,6 +516,19 @@ public class ImageLoader {
             IOUtil.close(in);
         }
         return bitmap;
+    }
+
+    public void clearDiskCache() {
+        if (mDiskCache != null) {
+            //mDiskCache.getDiskLruCache().c
+        }
+
+    }
+
+    public void clearMemoryCache() {
+        if (mMemoryCache != null) {
+            mMemoryCache.clearCache();
+        }
     }
 
 }
