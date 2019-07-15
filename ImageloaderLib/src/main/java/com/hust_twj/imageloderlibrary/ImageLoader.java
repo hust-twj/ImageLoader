@@ -228,43 +228,38 @@ public class ImageLoader {
         //加载本地图片
         if (isLocalImage(uri)) {
             bitmap = loadLocalImage(uri, imageView);
-            LoaderRequest local = new LoaderRequest()
-                    .setBitmap(bitmap)
-                    .setImageView(imageView)
-                    .setUri(uri);
-            mMainHandler.obtainMessage(MESSAGE_LOAD_LOCAL_IMAGE, local).sendToTarget();
+            sendResult(bitmap, imageView, uri, MESSAGE_LOAD_LOCAL_IMAGE);
             return this;
         }
         bitmap = loadBitmapFromMemoryCache(uri);
         if (bitmap != null) {
-            imageView.setImageBitmap(bitmap);
-            if (mListener != null) {
-                mListener.onResourceReady(bitmap, uri);
-            }
+            sendResult(bitmap, imageView, uri, MESSAGE_LOADED_REMOTE_IMAGE);
             return this;
         }
         Runnable downloadTask = new Runnable() {
 
             @Override
             public void run() {
-                Message message;
-                LoaderRequest result;
                 Bitmap bitmap;
-
-
                 //加载网络图片
                 bitmap = loadBitmap(imageView, uri, reqWidth, reqHeight);
                 Log.e("twj125", Thread.currentThread().getName() + "   download success:  " + uri + " ");
-                result = new LoaderRequest()
-                        .setBitmap(bitmap)
-                        .setImageView(imageView)
-                        .setUri(uri);
-                message = mMainHandler.obtainMessage(MESSAGE_LOADED_REMOTE_IMAGE, result);
-                mMainHandler.sendMessage(message);
+                sendResult(bitmap, imageView, uri, MESSAGE_LOADED_REMOTE_IMAGE);
             }
         };
         THREAD_POOL_EXECUTOR.execute(downloadTask);
         return this;
+    }
+
+    private void sendResult(Bitmap bitmap, ImageView imageView, String uri, int msgWhat) {
+        Message message;
+        LoaderRequest result;
+        result = new LoaderRequest()
+                .setBitmap(bitmap)
+                .setImageView(imageView)
+                .setUri(uri);
+        message = mMainHandler.obtainMessage(msgWhat, result);
+        mMainHandler.sendMessage(message);
     }
 
     /**
