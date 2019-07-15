@@ -520,7 +520,7 @@ public class ImageLoader {
 
     public void clearDiskCache() {
         if (mDiskCache != null) {
-            //mDiskCache.getDiskLruCache().c
+            mDiskCache.clearCache();
         }
 
     }

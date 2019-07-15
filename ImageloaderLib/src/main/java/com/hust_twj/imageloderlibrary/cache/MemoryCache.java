@@ -50,6 +50,7 @@ public class MemoryCache implements BitmapCache {
         mMemoryCache.remove(key);
     }
 
+    @Override
     public void clearCache() {
         if (mMemoryCache == null) {
             return;

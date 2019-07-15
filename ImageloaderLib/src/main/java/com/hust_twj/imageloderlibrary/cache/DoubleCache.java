@@ -47,4 +47,10 @@ public class DoubleCache implements BitmapCache {
         mMemoryCache.remove(key);
     }
 
+    @Override
+    public void clearCache() {
+        mMemoryCache.clearCache();
+        mDiskCache.clearCache();
+    }
+
 }

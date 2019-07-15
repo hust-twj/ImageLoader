@@ -110,7 +110,7 @@ public class DiskCache implements BitmapCache {
                 InputStream in = snapshot.getInputStream(0);
                 return BitmapFactory.decodeStream(in);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             Log.e(TAG, "get diskCache exception: " + e);
             e.printStackTrace();
         }
@@ -170,5 +170,18 @@ public class DiskCache implements BitmapCache {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void clearCache() {
+        if (mDiskLruCache == null) {
+            return;
+        }
+        /*try {
+            mDiskLruCache.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
+    }
+
 
 }

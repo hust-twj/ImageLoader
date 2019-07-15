@@ -15,4 +15,6 @@ public interface BitmapCache {
     void put(String key, Bitmap value);
 
     void remove(String key);
+
+    void clearCache();
 }
