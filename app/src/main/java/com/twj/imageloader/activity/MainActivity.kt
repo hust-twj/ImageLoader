@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         val config = ImageLoaderConfig()
                 .placeHolder(R.drawable.img_loading)
                 .error(R.drawable.img_error)
+                .displayRaw(true)
                 .cache(DoubleCache(this))
                 .threadCount(4)
         ImageLoader.with().init(config)

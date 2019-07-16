@@ -8,8 +8,19 @@ package com.hust_twj.imageloderlibrary.config;
  */
 public class DisplayConfig {
 
+    /**
+     * 加载中的资源占位
+     */
     public int loadingResId = -1;
 
+    /**
+     * 加载失败的资源占位
+     */
     public int failedResId = -1;
+
+    /**
+     * 是否展示原图（false：默认根据控件大小优化图片的尺寸； true：原图展示）
+     */
+    public boolean displayRaw = false;
 
 }

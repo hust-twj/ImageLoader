@@ -34,7 +34,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -79,11 +78,11 @@ public class ImageLoader {
     private ImageLoadListener mListener;
 
     private static final ThreadFactory sThreadFactory = new ThreadFactory() {
-        private final AtomicInteger mCount = new AtomicInteger();
+        private final AtomicInteger mCount = new AtomicInteger(1);
 
         @Override
         public Thread newThread(@NonNull Runnable r) {
-            return new Thread(r, "ImageLoader#" + mCount.getAndIncrement());
+            return new Thread(r, "ImageLoaderThread#" + mCount.getAndIncrement());
         }
     };
 
@@ -415,6 +414,9 @@ public class ImageLoader {
             mMemoryCache.put(key, bitmap);
         }
         if (bitmap != null) {
+            if (mConfig != null && mConfig.displayConfig != null && mConfig.displayConfig.displayRaw) {
+                return bitmap;
+            }
             return ImageResizer.decodeBitmap(bitmap, reqWidth, reqHeight);
         }
         return null;

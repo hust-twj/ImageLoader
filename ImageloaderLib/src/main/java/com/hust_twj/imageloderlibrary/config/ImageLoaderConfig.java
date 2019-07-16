@@ -45,4 +45,10 @@ public class ImageLoaderConfig {
         displayConfig.failedResId = resID;
         return this;
     }
+
+    public ImageLoaderConfig displayRaw(boolean displayRaw) {
+        displayConfig.displayRaw = displayRaw;
+        return this;
+    }
+
 }
