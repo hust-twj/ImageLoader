@@ -69,7 +69,6 @@ public class DiskCache implements BitmapCache {
         return mDiskCache;
     }
 
-
     private int getAppVersion(Context context) {
         try {
             PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
@@ -177,12 +176,23 @@ public class DiskCache implements BitmapCache {
             return;
         }
         try {
+            int cacheSize = getCacheSize();
             mDiskLruCache.delete();
-            Log.e(TAG,"清除磁盘缓存成功");
+            Log.e(TAG, "清除磁盘缓存成功，清除的缓存大小为：" + cacheSize);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * 获取当前磁盘缓存的大小
+     */
+    private int getCacheSize() {
+        int size = 0;
+        if (mDiskLruCache != null) {
+            size = (int) mDiskLruCache.size();
+        }
+        return size;
+    }
 
 }

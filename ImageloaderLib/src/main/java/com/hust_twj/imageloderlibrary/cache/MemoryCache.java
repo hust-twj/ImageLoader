@@ -5,8 +5,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * 内存缓存（key为图片的uri，值为图片本身）
@@ -53,16 +51,22 @@ public class MemoryCache implements BitmapCache {
 
     @Override
     public void clearCache() {
-        if (mMemoryCache == null) {
-            return;
+        if (mMemoryCache != null) {
+            int cacheSize = getCacheSize();
+            mMemoryCache.evictAll();
+            Log.e(TAG, "清除内存缓存成功，清除的缓存大小为：" + cacheSize);
+
         }
-        Map<String, Bitmap> map = mMemoryCache.snapshot();
-        while (map.entrySet().iterator().hasNext()) {
-            Map.Entry<String, Bitmap> entry = map.entrySet().iterator().next();
-            map.remove(entry.getKey());
-            mMemoryCache.remove(entry.getKey());
-            Log.e(TAG, entry.getKey() + "  " + entry.getValue());
-        }
-        Log.e(TAG,"清除内存缓存成功");
     }
+
+    /**
+     * 获取当前内存缓存的大小
+     */
+    private int getCacheSize() {
+        int size = 0;
+        if (mMemoryCache != null)
+            size += mMemoryCache.size();
+        return size;
+    }
+
 }
