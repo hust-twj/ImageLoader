@@ -14,6 +14,7 @@ public class LoaderRequest {
 
     public ImageView mImageView;
     public String uri;
+    public String tag;
 
     public DisplayConfig mDisplayConfig;
     public ImageLoadListener mImageLoadListener;
@@ -27,6 +28,11 @@ public class LoaderRequest {
 
     public LoaderRequest setUri(String uri) {
         this.uri = uri;
+        return this;
+    }
+
+    public LoaderRequest setTag(String tag) {
+        this.tag = tag;
         return this;
     }
 

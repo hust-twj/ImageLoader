@@ -455,11 +455,11 @@ public final class DiskLruCache implements Closeable {
      * Returns an editor for the entry named {@code key}, or null if another
      * edit is in progress.
      */
-    public Editor edit(String key) throws IOException {
+    public Editor edit(String key) throws Exception {
         return edit(key, ANY_SEQUENCE_NUMBER);
     }
 
-    private synchronized Editor edit(String key, long expectedSequenceNumber) throws IOException {
+    private synchronized Editor edit(String key, long expectedSequenceNumber) throws Exception {
         checkNotClosed();
         validateKey(key);
         Entry entry = lruEntries.get(key);
@@ -704,7 +704,7 @@ public final class DiskLruCache implements Closeable {
          * entry has changed since this snapshot was created or if another edit
          * is in progress.
          */
-        public Editor edit() throws IOException {
+        public Editor edit() throws Exception {
             return DiskLruCache.this.edit(key, sequenceNumber);
         }
 
