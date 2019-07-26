@@ -57,8 +57,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
             @Override
             public void run() {
                 ImageLoader.with()
-                        .load(url, holder.mTvPhoto, holder.mTvPhoto.getWidth(), holder.mTvPhoto.getHeight())
-                .onLoadListener(new ImageLoadListener() {
+                        .load(url, holder.mTvPhoto)
+               /* .onLoadListener(new ImageLoadListener() {
                     @Override
                     public void onResourceReady(Bitmap bitmap, String uri) {
 
@@ -69,7 +69,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
                         LogUtils.e("error_twj123" , " 错误位置：  " + position + "   " + e.toString());
 
                     }
-                });
+                })*/;
             }
         });
 

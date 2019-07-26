@@ -16,7 +16,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        initImageLoader()
+        //initImageLoader()
 
         tv_load_local.setOnClickListener {
             startActivity(Intent(this@MainActivity, LoadLocalImageActivity::class.java))
@@ -35,22 +35,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         clean_cache.setOnClickListener {
-            ImageLoader.with().clearMemoryCache()
-            ImageLoader.with().clearDiskCache()
+            ImageLoader.with().clearCache()
         }
 
     }
 
-    /**
-     * 初始化ImageLoader
-     */
-    private fun initImageLoader() {
-        val config = ImageLoaderConfig()
-                .placeHolder(R.drawable.img_loading)
-                .error(R.drawable.img_error)
-                .displayRaw(true)
-                .cache(DoubleCache(this))
-                .threadCount(4)
-        ImageLoader.with().init(config)
-    }
+
 }

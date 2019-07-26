@@ -1,43 +1,17 @@
 package com.hust_twj.imageloderlibrary;
 
-import android.content.ContentUris;
 import android.content.Context;
-import android.content.res.Resources;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.util.Log;
 import android.widget.ImageView;
 
-import com.hust_twj.imageloderlibrary.cache.DiskCache;
-import com.hust_twj.imageloderlibrary.cache.IOUtil;
+import com.hust_twj.imageloderlibrary.cache.BitmapCache;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
+import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig;
+import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
 import com.hust_twj.imageloderlibrary.request.LoaderRequest;
-import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
-import com.hust_twj.imageloderlibrary.utils.ImageResizer;
+import com.hust_twj.imageloderlibrary.request.RequestQueue;
 import com.hust_twj.imageloderlibrary.utils.LoaderProvider;
-import com.hust_twj.imageloderlibrary.utils.Md5Utils;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.concurrent.Executor;
-import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author hust_twj
@@ -52,8 +26,13 @@ public class ImageLoader {
      */
     private ImageLoaderConfig mConfig;
 
-    private MemoryCache mMemoryCache;
-    private DiskCache mDiskCache;
+   /* private MemoryCache mMemoryCache;
+    private DiskCache mDiskCache;*/
+
+    /**
+     * 缓存
+     */
+    private volatile BitmapCache mCache = new MemoryCache();
 
     private static final String TAG = "ImageLoader";
     //加载本地图片
@@ -70,83 +49,12 @@ public class ImageLoader {
     private static final int URI_TAG = R.id.image_loader_uri;
     private static final int IO_BUFFER_SIZE = 8 * 1024;
 
-    private static final int DEFAULT_WIDTH = 200;
-    private static final int DEFAULT_HEIGHT = 200;
-
     private Context mContext;
 
     private ImageLoadListener mListener;
 
-    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
-        private final AtomicInteger mCount = new AtomicInteger(1);
-
-        @Override
-        public Thread newThread(@NonNull Runnable r) {
-            return new Thread(r, "ImageLoaderThread#" + mCount.getAndIncrement());
-        }
-    };
-
-    private static final Executor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
-            CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS,
-            new LinkedBlockingDeque<Runnable>(), sThreadFactory);
-
-    private Handler mMainHandler = new Handler(Looper.getMainLooper()) {
-
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MESSAGE_LOAD_LOCAL_IMAGE: {
-                    LoaderRequest result = (LoaderRequest) msg.obj;
-                    ImageView imageView = result.mImageView;
-                    String uri = (String) imageView.getTag(URI_TAG);
-                    if (result.mBitmap != null) {
-                        if (uri.equals(result.uri)) {
-                            imageView.setImageBitmap(result.mBitmap);
-                            if (mListener != null) {
-                                mListener.onResourceReady(result.mBitmap, uri);
-                            }
-                        } else {
-                            Log.w(TAG, "uri不相等");
-                        }
-                    }
-                }
-                break;
-                case MESSAGE_LOADING_REMOTE_IMAGE: {
-                    if (mConfig == null || mConfig.displayConfig == null) {
-                        return;
-                    }
-                    LoaderRequest result = (LoaderRequest) msg.obj;
-                    ImageView imageView = result.mImageView;
-                    String uri = (String) imageView.getTag(URI_TAG);
-                    if (uri.equals(result.uri)) {
-                        imageView.setImageResource(mConfig.displayConfig.loadingResId);
-                    }
-                }
-                break;
-                case MESSAGE_LOADED_REMOTE_IMAGE: {
-                    LoaderRequest result = (LoaderRequest) msg.obj;
-                    ImageView imageView = result.mImageView;
-                    String uri = (String) imageView.getTag(URI_TAG);
-                    if (result.mBitmap != null) {
-                        if (uri.equals(result.uri)) {
-                            imageView.setImageBitmap(result.mBitmap);
-                            if (mListener != null) {
-                                mListener.onResourceReady(result.mBitmap, uri);
-                            }
-                        } else {
-                            Log.w(TAG, "uri不相等");
-                        }
-                    } else if (mConfig != null && mConfig.displayConfig != null) {
-                        imageView.setImageResource(mConfig.displayConfig.failedResId);
-                    }
-                }
-                break;
-                default:
-                    break;
-            }
-
-        }
-    };
+    private RequestQueue mRequestQueue;
+    //private LoaderRequest mLoaderRequest = new LoaderRequest();
 
     private ImageLoader(Context context) {
         mContext = context.getApplicationContext();
@@ -168,13 +76,68 @@ public class ImageLoader {
 
     public void init(ImageLoaderConfig config) {
         mConfig = config;
-        //mMemoryCache = config.bitmapCache;
-        if (mMemoryCache == null) {
-            mMemoryCache = new MemoryCache();
+        mCache = config.bitmapCache;
+        mRequestQueue = new RequestQueue();
+
+//        if (mMemoryCache == null) {
+//            mMemoryCache = new MemoryCache();
+//        }
+//        if (mDiskCache == null) {
+//            mDiskCache = new DiskCache(mContext);
+//        }
+        if (mConfig == null) {
+            throw new RuntimeException("config is null");
         }
-        if (mDiskCache == null) {
-            mDiskCache = new DiskCache(mContext);
+        //if (mConfig.)
+        if (mCache == null) {
+            mCache = new MemoryCache();
         }
+    }
+
+    public void load(int resID, ImageView imageView) {
+       // mLoaderRequest.setResID(resID).setImageView(imageView);
+        // 添加对队列中
+//        mRequestQueue.addRequest(mLoaderRequest);
+//        //启动线程池加载图片
+//        mRequestQueue.start();
+        load(Schema.PREFIX_RESOURCE.concat("://").concat(String.valueOf(resID)), imageView);
+    }
+
+    public void load(String uri, ImageView imageView) {
+        load(uri, imageView, null, null);
+    }
+
+    public void Load(String uri, ImageView imageView, DisplayConfig config) {
+        load(uri, imageView, config, null);
+    }
+
+    public void load(String uri, ImageView imageView, ImageLoadListener listener) {
+        load(uri, imageView, null, listener);
+    }
+
+    public void load(String uri, ImageView imageView, DisplayConfig config, ImageLoadListener listener) {
+        LoaderRequest request = new LoaderRequest(imageView, uri, config, listener);
+
+//        mLoaderRequest.setImageView(imageView)
+//                .setUri(uri)
+//               // .setResID(LoaderRequest.RES_ID_INVALID)
+//                .setDisplayConfig(config != null ? config : mConfig.displayConfig)
+//                .setImageLoadListener(listener);
+        //mLoaderRequest.mDisplayConfig = config != null ? config : mConfig.displayConfig;
+        request.mDisplayConfig = request.mDisplayConfig != null ? request.mDisplayConfig
+                : mConfig.displayConfig;
+        // 添加对队列中
+        mRequestQueue.addRequest(request);
+        //启动线程池加载图片
+        mRequestQueue.start();
+    }
+
+    public ImageLoaderConfig getConfig() {
+        return mConfig;
+    }
+
+    public void stop() {
+        mRequestQueue.stop();
     }
 
     /**
@@ -183,7 +146,7 @@ public class ImageLoader {
      * @param resID     本地图片资源ID
      * @param imageView ImageView
      */
-    public ImageLoader load(final int resID, final ImageView imageView) {
+   /* public ImageLoader load(final int resID, final ImageView imageView) {
         try {
             Resources res = imageView.getContext().getResources();
             Bitmap bitmap = BitmapFactory.decodeResource(res, resID);
@@ -195,7 +158,7 @@ public class ImageLoader {
         } catch (Exception e) {
             e.printStackTrace();
             if (mListener != null) {
-                mListener.onFailure(e);
+                mListener.onFailure();
             }
         }
         return this;
@@ -215,12 +178,12 @@ public class ImageLoader {
         return this;
     }
 
-    /**
+    *//**
      * 异步加载网络图片
      *
      * @param uri       资源ID
      * @param imageView ImageView
-     */
+     *//*
     public ImageLoader load(final String uri, final ImageView imageView,
                             final int reqWidth, final int reqHeight) {
         imageView.setTag(URI_TAG, uri);
@@ -262,12 +225,12 @@ public class ImageLoader {
         mMainHandler.sendMessage(message);
     }
 
-    /**
+    *//**
      * 加载本地图片
      *
      * @param uri uri
      * @return Bitmap
-     */
+     *//*
     private Bitmap loadLocalImage(String uri, ImageView imageView) {
         final String imagePath = getImagePath(mContext, uri);
         final File imgFile = new File(imagePath);
@@ -316,9 +279,9 @@ public class ImageLoader {
         return imagePath;
     }
 
-    /**
+    *//**
      * 根据Uri来获取到图片对应的真实路径
-     */
+     *//*
     private String getImagePathFromUri(Context context, Uri uri) {
         String path = null;
         Cursor cursor = context.getContentResolver().query(uri, null, null, null, null);
@@ -336,9 +299,9 @@ public class ImageLoader {
         return path;
     }
 
-    /**
+    *//**
      * 获取数据库表中的 _data 列，即返回Uri对应的文件路径
-     */
+     *//*
     private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         String path = "";
         String[] projection = new String[]{MediaStore.Images.Media.DATA};
@@ -361,14 +324,14 @@ public class ImageLoader {
         return uri.startsWith("content") || uri.startsWith("file");
     }
 
-    /**
+    *//**
      * 同步加载  （依次从内存缓存、磁盘缓存、网络中加载）在子线程执行，主线程执行抛异常
      *
      * @param uri       http url
      * @param reqWidth  ImageView宽度
      * @param reqHeight ImageView高度
      * @return bitmap, maybe null.
-     */
+     *//*
     public Bitmap loadBitmap(ImageView imageView, String uri, int reqWidth, int reqHeight) {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             throw new RuntimeException("需要在子线程中执行");
@@ -390,17 +353,17 @@ public class ImageLoader {
         return bitmap;
     }
 
-    /**
+    *//**
      * 从内存缓存中加载图片
-     */
+     *//*
     private Bitmap loadBitmapFromMemoryCache(String url) {
         final String key = Md5Utils.toMD5(url);
         return mMemoryCache.get(key);
     }
 
-    /**
+    *//**
      * 从磁盘缓存中加载图片
-     */
+     *//*
     private Bitmap loadBitmapForDiskCache(String url, int reqWidth, int reqHeight) {
         if (mDiskCache == null || mDiskCache.getDiskLruCache() == null) {
             return null;
@@ -422,9 +385,11 @@ public class ImageLoader {
         return null;
     }
 
+    */
+
     /**
      * 从网络加载图片
-     */
+     *//*
     private Bitmap downloadBitmapFromUrl(String urlString) {
         long currentTime = System.currentTimeMillis();
         Log.e("twj125", currentTime + "");
@@ -450,7 +415,7 @@ public class ImageLoader {
         } catch (final IOException e) {
             Log.e(TAG, "Error in downloadBitmap: " + e);
             if (mListener != null) {
-                mListener.onFailure(e);
+                mListener.onFailure();
             }
         } finally {
             if (urlConnection != null) {
@@ -466,12 +431,6 @@ public class ImageLoader {
         return this;
     }
 
-    /**
-     * 将下载的图片写入磁盘中，实现磁盘缓存
-     *
-     * @param urlString 图片链接
-     * @return Bitmap
-     */
     private Bitmap downloadBitmapFromUrl(String urlString, ImageView imageView) {
         Log.e("twj1256", "download -------" + urlString + "  " + imageView.getWidth() + "  " + imageView.getHeight());
         if (Looper.myLooper() == Looper.getMainLooper()) {
@@ -515,18 +474,12 @@ public class ImageLoader {
         }
         return bitmap;
     }
-
-    public void clearDiskCache() {
-        if (mDiskCache != null) {
-            mDiskCache.clearCache();
+    */
+    public void clearCache() {
+        if (mCache != null) {
+            mCache.clearCache();
         }
 
-    }
-
-    public void clearMemoryCache() {
-        if (mMemoryCache != null) {
-            mMemoryCache.clearCache();
-        }
     }
 
 }

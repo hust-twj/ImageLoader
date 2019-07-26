@@ -29,17 +29,17 @@ public class LoadRemoteImageActivity extends AppCompatActivity {
         String url = "http://p3-q.mafengwo.net/s12/M00/5F/01/wKgED1va9ZeAf0k5AAijT_WanQ006.jpeg";
         ImageLoader.with()
                 .load(url, mIvRemote)
-                .onLoadListener(new ImageLoadListener() {
+                /*.onLoadListener(new ImageLoadListener() {
                     @Override
                     public void onResourceReady(Bitmap bitmap, String uri) {
                         LogUtils.e("twj", "onResourceReady: " + uri);
                     }
 
                     @Override
-                    public void onFailure(Exception e) {
+                    public void onFailure() {
 
                     }
-                });
+                })*/;
 
     }
 }
