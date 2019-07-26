@@ -10,7 +10,7 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
-import com.hust_twj.imageloderlibrary.request.LoaderRequest;
+import com.hust_twj.imageloderlibrary.request.LoadRequest;
 import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
 
 import java.io.File;
@@ -22,7 +22,7 @@ import java.io.File;
 public class LocalLoadStrategy extends BaseLoadStrategy {
 
     @Override
-    public Bitmap onLoadImage(LoaderRequest request) {
+    public Bitmap onLoadImage(LoadRequest request) {
         final String imagePath = getPath(request.mImageView.getContext(), request.uri);
         final File imgFile = new File(imagePath);
         if (!imgFile.exists()) {

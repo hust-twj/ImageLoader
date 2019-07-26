@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.hust_twj.imageloderlibrary.constant.Schema;
-import com.hust_twj.imageloderlibrary.request.LoaderRequest;
+import com.hust_twj.imageloderlibrary.request.LoadRequest;
 
 
 /**
@@ -15,7 +15,7 @@ import com.hust_twj.imageloderlibrary.request.LoaderRequest;
 public class ResourceLoadStrategy extends BaseLoadStrategy {
 
     @Override
-    public Bitmap onLoadImage(LoaderRequest request) {
+    public Bitmap onLoadImage(LoadRequest request) {
         Bitmap bitmap = null;
         try {
             int resID = Integer.parseInt(request.uri.split(Schema.SPIT)[1]);

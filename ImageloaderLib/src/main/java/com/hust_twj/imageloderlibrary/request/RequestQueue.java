@@ -26,7 +26,7 @@ public final class RequestQueue {
     /**
      * 请求队列
      */
-    private BlockingQueue<LoaderRequest> mRequestQueue = new PriorityBlockingQueue<>();
+    private BlockingQueue<LoadRequest> mRequestQueue = new PriorityBlockingQueue<>();
     /**
      * 请求的序列化生成器
      */
@@ -58,7 +58,7 @@ public final class RequestQueue {
 
             @Override
             public void run() {
-                LoaderRequest request;
+                LoadRequest request;
                 try {
                     request = mRequestQueue.take();
 
@@ -104,10 +104,10 @@ public final class RequestQueue {
     /**
      * 不能重复添加请求
      */
-    public void addRequest(LoaderRequest loaderRequest) {
-        if (!mRequestQueue.contains(loaderRequest)) {
-            loaderRequest.serialNum = generateSerialNumber();
-            mRequestQueue.add(loaderRequest);
+    public void addRequest(LoadRequest loadRequest) {
+        if (!mRequestQueue.contains(loadRequest)) {
+            loadRequest.serialNum = generateSerialNumber();
+            mRequestQueue.add(loadRequest);
         } else {
             Log.d("", "### 请求队列中已经含有");
         }
@@ -117,7 +117,7 @@ public final class RequestQueue {
         mRequestQueue.clear();
     }
 
-    public BlockingQueue<LoaderRequest> getAllRequests() {
+    public BlockingQueue<LoadRequest> getAllRequests() {
         return mRequestQueue;
     }
 

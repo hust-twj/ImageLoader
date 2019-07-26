@@ -1,13 +1,14 @@
 package com.hust_twj.imageloderlibrary.loader;
 
 
-import com.hust_twj.imageloderlibrary.request.LoaderRequest;
+import com.hust_twj.imageloderlibrary.request.LoadRequest;
 
 /**
+ * 加载策略接口
  * Created by Wenjing.Tang on 2019-07-16.
  */
 public interface ILoadStrategy {
 
-    void loadImage(LoaderRequest request);
+    void loadImage(LoadRequest request);
 
 }

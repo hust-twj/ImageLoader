@@ -4,8 +4,6 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.hust_twj.imageloderlibrary.ImageLoader
-import com.hust_twj.imageloderlibrary.cache.DoubleCache
-import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig
 import com.twj.imageloader.R
 import com.twj.imageloader.activity.local.LoadLocalImageActivity
 import kotlinx.android.synthetic.main.activity_main.*

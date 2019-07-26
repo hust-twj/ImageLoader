@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.hust_twj.imageloderlibrary.cache.IOUtil;
-import com.hust_twj.imageloderlibrary.request.LoaderRequest;
+import com.hust_twj.imageloderlibrary.request.LoadRequest;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
@@ -18,8 +18,8 @@ import java.net.URL;
 public class UrlLoadStrategy extends BaseLoadStrategy {
 
     @Override
-    public Bitmap onLoadImage(LoaderRequest loaderRequest) {
-        final String imageUrl = loaderRequest.uri;
+    public Bitmap onLoadImage(LoadRequest loadRequest) {
+        final String imageUrl = loadRequest.uri;
         InputStream is = null;
         Bitmap bitmap = null;
         HttpURLConnection conn = null;

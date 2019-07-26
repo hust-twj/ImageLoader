@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 
+import com.hust_twj.imageloderlibrary.utils.Md5Utils;
+
 
 /**
  * 内存缓存（key为图片的uri，值为图片本身）
@@ -36,17 +38,17 @@ public class MemoryCache implements BitmapCache {
 
     @Override
     public Bitmap get(String key) {
-        return mMemoryCache.get(key);
+        return mMemoryCache.get(Md5Utils.toMD5(key));
     }
 
     @Override
     public void put(String key, Bitmap value) {
-        mMemoryCache.put(key, value);
+        mMemoryCache.put(Md5Utils.toMD5(key), value);
     }
 
     @Override
     public void remove(String key) {
-        mMemoryCache.remove(key);
+        mMemoryCache.remove(Md5Utils.toMD5(key));
     }
 
     @Override

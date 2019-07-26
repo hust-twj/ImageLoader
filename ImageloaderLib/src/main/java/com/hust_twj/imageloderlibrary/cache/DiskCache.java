@@ -101,10 +101,8 @@ public class DiskCache implements BitmapCache {
 
     @Override
     public Bitmap get(final String key) {
-        String md5Key;
         try {
-            md5Key = Md5Utils.toMD5(key);
-            DiskLruCache.Snapshot snapshot = mDiskLruCache.get(md5Key);
+            DiskLruCache.Snapshot snapshot = mDiskLruCache.get(Md5Utils.toMD5(key));
             if (snapshot != null) {
                 InputStream in = snapshot.getInputStream(0);
                 return BitmapFactory.decodeStream(in);

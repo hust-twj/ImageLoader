@@ -62,11 +62,11 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
                     @Override
                     public void onResourceReady(Bitmap bitmap, String uri) {
 
-                    }
+                            }
 
-                    @Override
-                    public void onFailure(Exception e) {
-                        LogUtils.e("error_twj123" , " 错误位置：  " + position + "   " + e.toString());
+                            @Override
+                            public void onFailure() {
+                                LogUtils.e("error_twj123", " onFailure：  " + position);
 
                     }
                 })*/;

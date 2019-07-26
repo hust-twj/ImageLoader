@@ -9,7 +9,7 @@ import com.hust_twj.imageloderlibrary.cache.MemoryCache;
  * @author hust_twj
  * @date 2019/6/11
  */
-public class ImageLoaderConfig {
+public class LoaderConfig {
 
     /**
      * 图片缓存配置对象
@@ -26,28 +26,13 @@ public class ImageLoaderConfig {
      */
     public int threadCount = Runtime.getRuntime().availableProcessors() + 1;
 
-    public ImageLoaderConfig cache(BitmapCache cache) {
+    public LoaderConfig cache(BitmapCache cache) {
         bitmapCache = cache;
         return this;
     }
 
-    public ImageLoaderConfig threadCount(int count) {
+    public LoaderConfig threadCount(int count) {
         threadCount = Math.max(1, count);
-        return this;
-    }
-
-    public ImageLoaderConfig placeHolder(int resID) {
-        displayConfig.loadingResId = resID;
-        return this;
-    }
-
-    public ImageLoaderConfig error(int resID) {
-        displayConfig.failedResId = resID;
-        return this;
-    }
-
-    public ImageLoaderConfig displayRaw(boolean displayRaw) {
-        displayConfig.displayRaw = displayRaw;
         return this;
     }
 

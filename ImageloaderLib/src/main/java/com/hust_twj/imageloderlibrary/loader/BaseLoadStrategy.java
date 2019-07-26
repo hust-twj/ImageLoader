@@ -7,9 +7,10 @@ import android.widget.ImageView;
 import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
-import com.hust_twj.imageloderlibrary.request.LoaderRequest;
+import com.hust_twj.imageloderlibrary.request.LoadRequest;
 
 /**
+ * 图片加载器
  * Created by Wenjing.Tang on 2019-07-16.
  */
 public abstract class BaseLoadStrategy implements ILoadStrategy {
@@ -22,7 +23,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     private static BitmapCache mCache = ImageLoader.with().getConfig().bitmapCache;
 
     @Override
-    public final void loadImage(LoaderRequest request) {
+    public final void loadImage(LoadRequest request) {
         Bitmap resultBitmap;
         resultBitmap = mCache.get(request.uri);
         Log.e(TAG, "是否有缓存 : " + resultBitmap + ", uri = " + request.uri);
@@ -36,25 +37,20 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
         updateImageView(request, resultBitmap);
     }
 
-    /**
-     * @param request request
-     * @return Bitmap
-     */
-    protected abstract Bitmap onLoadImage(LoaderRequest request);
+    protected abstract Bitmap onLoadImage(LoadRequest request);
 
     /**
-     * @param request request
-     * @param bitmap  bitmap
+     * 缓存新的图片
      */
-    private void cacheBitmap(LoaderRequest request, Bitmap bitmap) {
-        if (LoaderRequest.isResource(request.uri)) {
+    private void cacheBitmap(LoadRequest request, Bitmap bitmap) {
+        if (LoadRequest.isResource(request.uri)) {
             return;
         }
-        // 缓存新的图片
-        if (bitmap != null && mCache != null) {
-            synchronized (BaseLoadStrategy.class) {
-                mCache.put(request.uri, bitmap);
-            }
+        if (bitmap == null || mCache == null) {
+            return;
+        }
+        synchronized (BaseLoadStrategy.class) {
+            mCache.put(request.uri, bitmap);
         }
     }
 
@@ -63,14 +59,14 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      *
      * @param request request
      */
-    private void showLoading(final LoaderRequest request) {
+    private void showLoading(final LoadRequest request) {
         final ImageView imageView = request.mImageView;
         if (request.isImageViewTagValid() && hasLoadingPlaceholder(request.mDisplayConfig)) {
             imageView.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    imageView.setImageResource(request.mDisplayConfig.loadingResId);
+                    imageView.setImageResource(request.mDisplayConfig.placeHolderResId);
                 }
             });
         }
@@ -82,7 +78,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      * @param request request
      * @param bitmap  bitmap
      */
-    private void updateImageView(final LoaderRequest request, final Bitmap bitmap) {
+    private void updateImageView(final LoadRequest request, final Bitmap bitmap) {
         final ImageView imageView = request.mImageView;
         if (imageView == null) {
             return;
@@ -103,7 +99,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
             imageView.post(new Runnable() {
                 @Override
                 public void run() {
-                    imageView.setImageResource(request.mDisplayConfig.failedResId);
+                    imageView.setImageResource(request.mDisplayConfig.errorResId);
                 }
             });
             if (request.mImageLoadListener != null) {
@@ -113,11 +109,11 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     }
 
     private boolean hasLoadingPlaceholder(DisplayConfig displayConfig) {
-        return displayConfig != null && displayConfig.loadingResId > 0;
+        return displayConfig != null && displayConfig.placeHolderResId > 0;
     }
 
     private boolean hasErrorPlaceholder(DisplayConfig displayConfig) {
-        return displayConfig != null && displayConfig.failedResId > 0;
+        return displayConfig != null && displayConfig.errorResId > 0;
     }
 
 }
