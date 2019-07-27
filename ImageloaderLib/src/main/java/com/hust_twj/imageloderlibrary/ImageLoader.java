@@ -7,6 +7,7 @@ import com.hust_twj.imageloderlibrary.cache.BitmapCache;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.config.LoaderConfig;
+import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
 import com.hust_twj.imageloderlibrary.request.LoadRequest;
 import com.hust_twj.imageloderlibrary.request.RequestQueue;
@@ -34,7 +35,7 @@ public class ImageLoader {
 
     private RequestQueue mRequestQueue;
 
-    private LoadRequest mLoadRequest/* = new LoadRequest()*/;
+    //private LoadRequest mLoadRequest = new LoadRequest();
 
     private ImageLoader(Context context) {
         //mContext = context.getApplicationContext();
@@ -62,15 +63,13 @@ public class ImageLoader {
         if (mConfig == null) {
             throw new RuntimeException("config is null");
         }
-        //if (mConfig.)
         if (mCache == null) {
             mCache = new MemoryCache();
         }
     }
 
     public void load(int resID, ImageView imageView) {
-
-        //load(uri, imageView);
+        load(Schema.PREFIX_RESOURCE.concat("://").concat(String.valueOf(resID)), imageView);
     }
 
     public void load(String uri, ImageView imageView) {
@@ -87,15 +86,12 @@ public class ImageLoader {
 
 
     public void load(String uri, ImageView imageView, DisplayConfig config, ImageLoadListener listener) {
-         LoadRequest mLoadRequest = new LoadRequest(imageView, uri, config, listener);
-//
-     /*   mLoadRequest.setImageView(imageView)
+        LoadRequest mLoadRequest = new LoadRequest(imageView, uri, config, listener);
+      /*  mLoadRequest.setImageView(imageView)
                 .setUri(uri)
                 .setDisplayConfig(config)
-                .setImageLoadListener(listener);
-        //mLoaderRequest.mDisplayConfig = config != null ? config : mConfig.displayConfig;
-        mLoadRequest.mDisplayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
-                : mConfig.displayConfig;*/
+                .setImageLoadListener(listener);*/
+
         // 添加对队列中
         mRequestQueue.addRequest(mLoadRequest);
         //启动线程池加载图片
