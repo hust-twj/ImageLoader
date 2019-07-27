@@ -17,11 +17,6 @@ public class LoaderConfig {
     public BitmapCache bitmapCache = new MemoryCache();
 
     /**
-     * 加载图片时的loading和加载失败的图片配置对象
-     */
-    public DisplayConfig displayConfig = new DisplayConfig();
-
-    /**
      * 线程数
      */
     public int threadCount = Runtime.getRuntime().availableProcessors() + 1;

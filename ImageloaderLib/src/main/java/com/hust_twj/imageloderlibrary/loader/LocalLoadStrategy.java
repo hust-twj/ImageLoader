@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.request.LoadRequest;
 import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
 
@@ -40,7 +41,6 @@ public class LocalLoadStrategy extends BaseLoadStrategy {
                 return BitmapFactory.decodeFile(imagePath, options);
             }
         };
-
         return decoder.decodeBitmap(request.getImageViewWidth(), request.getImageViewHeight());
     }
 
@@ -53,34 +53,32 @@ public class LocalLoadStrategy extends BaseLoadStrategy {
             if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
                 String id = documentId.split(":")[1];
                 //等价于下面两句代码
-
                 String selection = MediaStore.Images.Media._ID + "=?";
                 String[] selectionArgs = {id};
-                imagePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
-
-                //String selection = MediaStore.Images.Media._ID + "=" + id;
-                //imagePath = getImagePath(uri, selection);
+                imagePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        selection, selectionArgs);
             } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.valueOf(documentId));
+                Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"),
+                        Long.valueOf(documentId));
                 imagePath = getImagePath(context, contentUri, null);
             }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+        } else if (Schema.PREFIX_CONTENT.equalsIgnoreCase(uri.getScheme())) {
             //如果是content类型的uri那么使用正常的uri
             imagePath = getImagePath(context, uri, null);
-        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+        } else if (Schema.PREFIX_FILE.equalsIgnoreCase(uri.getScheme())) {
             //如果uri是file 那么直接获取文件的路径
             imagePath = uri.getPath();
         }
         return imagePath;
     }
 
-
     /**
      * 根据Uri来获取到图片对应的真实路径
      */
-    public String getImagePath(Context context, Uri uri, String selection) {
+    private String getImagePath(Context context, Uri uri, String selection) {
         String path = null;
-        Cursor cursor = context.getContentResolver().query(uri, null, selection, null, null);
+        Cursor cursor = context.getContentResolver().query(uri, null,
+                selection, null, null);
         if (cursor == null) {
             return null;
         }
@@ -99,7 +97,6 @@ public class LocalLoadStrategy extends BaseLoadStrategy {
     /**
      * 获取数据库表中的 _data 列，即返回Uri对应的文件路径
      *
-     * @return
      */
     private static String getDataColumn(Context context, Uri uri, String selection, String[] selectionArgs) {
         String path = null;

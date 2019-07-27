@@ -14,8 +14,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //initImageLoader()
-
         tv_load_local.setOnClickListener {
             startActivity(Intent(this@MainActivity, LoadLocalImageActivity::class.java))
         }
