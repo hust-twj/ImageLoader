@@ -87,11 +87,12 @@ public class ImageLoader {
 
 
     public void load(String uri, ImageView imageView, DisplayConfig config, ImageLoadListener listener) {
-        LoadRequest mLoadRequest = new LoadRequest(imageView, uri, config, listener);
+        LoadRequest mLoadRequest = new LoadRequest(imageView, uri);
       /*  mLoadRequest.setImageView(imageView)
                 .setUri(uri)
                 .setDisplayConfig(config)
                 .setImageLoadListener(listener);*/
+        mLoadRequest.setDisplayConfig(config).setImageLoadListener(listener);
 
         // 添加对队列中
         mRequestQueue.addRequest(mLoadRequest);

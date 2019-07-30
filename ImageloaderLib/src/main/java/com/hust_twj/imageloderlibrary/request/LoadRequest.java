@@ -36,6 +36,11 @@ public class LoadRequest implements Comparable<LoadRequest> {
     //仅在内存中缓存
     public boolean onlyCacheMemory = false;
 
+    public LoadRequest(ImageView imageView, String uri) {
+        this.mImageView = imageView;
+        this.uri = uri;
+        imageView.setTag(uri);
+    }
 
     public LoadRequest(ImageView imageView, String uri, DisplayConfig config, ImageLoadListener listener) {
         this.mImageView = imageView;
@@ -134,7 +139,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
     }
 
     @Override
-    public int compareTo(LoadRequest o) {
+    public int compareTo(LoadRequest request) {
         return 0;
     }
 }

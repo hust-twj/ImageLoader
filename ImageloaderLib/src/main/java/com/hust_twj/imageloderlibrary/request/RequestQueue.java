@@ -65,9 +65,8 @@ public final class RequestQueue {
                     if (request.isCancel) {
                         return;
                     }
-                    ILoadStrategy imageLoader;
                     String schema = parseSchema(request.uri);
-                    imageLoader = LoadManager.getInstance().getLoader(schema);
+                    ILoadStrategy imageLoader = LoadManager.getInstance().getLoader(schema);
                     if (imageLoader == null) {
                         Log.e(TAG, "---- schema is : " + request.uri);
                         return;
