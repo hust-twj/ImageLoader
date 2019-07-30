@@ -1,6 +1,7 @@
 package com.hust_twj.imageloderlibrary;
 
 import android.content.Context;
+import android.support.annotation.DrawableRes;
 import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
@@ -68,7 +69,7 @@ public class ImageLoader {
         }
     }
 
-    public void load(int resID, ImageView imageView) {
+    public void load(@DrawableRes int resID, ImageView imageView) {
         load(Schema.PREFIX_RESOURCE.concat("://").concat(String.valueOf(resID)), imageView);
     }
 
@@ -97,7 +98,7 @@ public class ImageLoader {
         //启动线程池加载图片
         mRequestQueue.start();
     }
-    /*public synchronized ImageLoader load(int resID) {
+    /*public synchronized ImageLoader load(@DrawableRes int resID) {
         //资源图片加载，需要构造前缀
         String uri = Schema.PREFIX_RESOURCE.concat(Schema.SPIT).concat(String.valueOf(resID));
         mLoadRequest.setUri(uri);
@@ -109,7 +110,7 @@ public class ImageLoader {
         return this;
     }
 
-    public synchronized ImageLoader error(int errorResID) {
+    public synchronized ImageLoader error(@DrawableRes int errorResID) {
         *//*DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
                 : new DisplayConfig();
         displayConfig.errorResId = errorResID;
@@ -117,7 +118,7 @@ public class ImageLoader {
         return this;
     }
 
-    public synchronized ImageLoader placeHolder(int placeHoldResID) {
+    public synchronized ImageLoader placeHolder(@DrawableRes int placeHoldResID) {
        *//* DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
                 : new DisplayConfig();
         displayConfig.placeHolderResId = placeHoldResID;
