@@ -1,4 +1,4 @@
-package com.hust_twj.imageloderlibrary.request;
+package com.hust_twj.imageloderlibrary.task;
 
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -16,12 +16,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 请求队列（优先级队列）,使得请求可以按照优先级进行处理
+ * 请求任务（包含优先级队列,使得请求可以按照优先级进行处理）
  * Created by Wenjing.Tang on 2019-07-16.
  */
-public final class RequestQueue {
+public final class LoadTask {
 
-    private static final String TAG = RequestQueue.class.getSimpleName();
+    private static final String TAG = LoadTask.class.getSimpleName();
 
     /**
      * 请求队列
@@ -30,7 +30,7 @@ public final class RequestQueue {
     /**
      * 请求的序列化生成器
      */
-    private AtomicInteger mSerialNumGenerator = new AtomicInteger(0);
+    private AtomicInteger mSerialNumber = new AtomicInteger(0);
 
     private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
     private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
@@ -68,7 +68,7 @@ public final class RequestQueue {
                     String schema = parseSchema(request.uri);
                     ILoadStrategy imageLoader = LoadManager.getInstance().getLoader(schema);
                     if (imageLoader == null) {
-                        Log.e(TAG, "---- schema is : " + request.uri);
+                        Log.e(TAG, "start -- schema: " + request.uri);
                         return;
                     }
                     imageLoader.loadImage(request);
@@ -94,7 +94,7 @@ public final class RequestQueue {
     }
 
     /**
-     * 停止RequestDispatcher
+     * 停止
      */
     public void stop() {
         THREAD_POOL_EXECUTOR.shutdownNow();
@@ -108,7 +108,7 @@ public final class RequestQueue {
             loadRequest.serialNum = generateSerialNumber();
             mRequestQueue.add(loadRequest);
         } else {
-            Log.d("", "### 请求队列中已经含有");
+            Log.e(TAG, "请求已在队列中");
         }
     }
 
@@ -126,6 +126,6 @@ public final class RequestQueue {
      * @return 序列号
      */
     private int generateSerialNumber() {
-        return mSerialNumGenerator.incrementAndGet();
+        return mSerialNumber.incrementAndGet();
     }
 }

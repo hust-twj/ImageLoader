@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
-import com.hust_twj.imageloderlibrary.request.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.LoadRequest;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 /**

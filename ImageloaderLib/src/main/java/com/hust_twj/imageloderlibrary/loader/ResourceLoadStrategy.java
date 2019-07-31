@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.hust_twj.imageloderlibrary.constant.Schema;
-import com.hust_twj.imageloderlibrary.request.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.LoadRequest;
 
 
 /**

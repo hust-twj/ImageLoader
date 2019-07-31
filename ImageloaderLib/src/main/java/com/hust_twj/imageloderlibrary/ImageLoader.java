@@ -10,8 +10,8 @@ import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.config.LoaderConfig;
 import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
-import com.hust_twj.imageloderlibrary.request.LoadRequest;
-import com.hust_twj.imageloderlibrary.request.RequestQueue;
+import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.LoadTask;
 import com.hust_twj.imageloderlibrary.utils.LoaderProvider;
 
 /**
@@ -34,7 +34,7 @@ public class ImageLoader {
      */
     private volatile BitmapCache mCache = new MemoryCache();
 
-    private RequestQueue mRequestQueue;
+    private LoadTask mLoadTask;
 
     //private LoadRequest mLoadRequest = new LoadRequest();
 
@@ -59,7 +59,7 @@ public class ImageLoader {
     public void init(LoaderConfig config) {
         mConfig = config;
         mCache = config.bitmapCache;
-        mRequestQueue = new RequestQueue();
+        mLoadTask = new LoadTask();
 
         if (mConfig == null) {
             throw new RuntimeException("config is null");
@@ -95,9 +95,9 @@ public class ImageLoader {
         mLoadRequest.setDisplayConfig(config).setImageLoadListener(listener);
 
         // 添加对队列中
-        mRequestQueue.addRequest(mLoadRequest);
+        mLoadTask.addRequest(mLoadRequest);
         //启动线程池加载图片
-        mRequestQueue.start();
+        mLoadTask.start();
     }
     /*public synchronized ImageLoader load(@DrawableRes int resID) {
         //资源图片加载，需要构造前缀
@@ -147,7 +147,7 @@ public class ImageLoader {
     }
 
     public void stop() {
-        mRequestQueue.stop();
+        mLoadTask.stop();
     }
 
     public void clearCache() {

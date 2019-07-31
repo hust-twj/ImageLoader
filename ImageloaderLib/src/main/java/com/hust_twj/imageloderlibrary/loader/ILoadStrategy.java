@@ -1,7 +1,7 @@
 package com.hust_twj.imageloderlibrary.loader;
 
 
-import com.hust_twj.imageloderlibrary.request.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.LoadRequest;
 
 /**
  * 加载策略接口

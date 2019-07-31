@@ -1,4 +1,4 @@
-package com.hust_twj.imageloderlibrary.request;
+package com.hust_twj.imageloderlibrary.task;
 
 import android.graphics.Bitmap;
 import android.widget.ImageView;
@@ -17,12 +17,12 @@ import com.hust_twj.imageloderlibrary.utils.ImageViewUtils;
 public class LoadRequest implements Comparable<LoadRequest> {
 
     public ImageView mImageView;
-    //uri
-    public String uri = "";
+
+    public String uri ;
 
     //配置信息
     public DisplayConfig mDisplayConfig = new DisplayConfig();
-    //回调
+    //加载回调
     public ImageLoadListener mImageLoadListener;
 
     public Bitmap mBitmap;
@@ -30,7 +30,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
     //是否取消该请求
     public boolean isCancel = false;
 
-    //请求序列号
+    //请求的序列号
     public int serialNum = 0;
 
     //仅在内存中缓存
@@ -86,7 +86,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
     }
 
     /**
-     * 判断ImageView的tag是否与uri相等
+     * 有效性：ImageView的tag是否与uri相等
      */
     public boolean isImageViewTagValid() {
         return mImageView != null && mImageView.getTag().equals(uri);
@@ -124,9 +124,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
             if (other.mImageView != null)
                 return false;
         }
-        if (serialNum != other.serialNum)
-            return false;
-        return true;
+        return serialNum == other.serialNum;
     }
 
     @Override

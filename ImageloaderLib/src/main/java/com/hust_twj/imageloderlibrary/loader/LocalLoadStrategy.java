@@ -11,7 +11,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 import com.hust_twj.imageloderlibrary.constant.Schema;
-import com.hust_twj.imageloderlibrary.request.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.LoadRequest;
 import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
 
 import java.io.File;

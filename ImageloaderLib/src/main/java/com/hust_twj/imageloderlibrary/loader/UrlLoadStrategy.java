@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.hust_twj.imageloderlibrary.cache.IOUtil;
-import com.hust_twj.imageloderlibrary.request.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.LoadRequest;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
