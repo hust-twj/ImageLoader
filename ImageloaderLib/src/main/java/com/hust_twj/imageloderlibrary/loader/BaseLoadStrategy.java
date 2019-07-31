@@ -8,6 +8,7 @@ import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.request.LoadRequest;
+import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 /**
  * 图片加载器
@@ -26,10 +27,12 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     public final void loadImage(LoadRequest request) {
         Bitmap resultBitmap;
         resultBitmap = mCache.get(request.uri);
-        Log.e(TAG, "是否有缓存 : " + resultBitmap + ", uri = " + request.uri);
+        Log.e(TAG, "是否有缓存 : " + (resultBitmap != null) + ", uri: " + request.uri + "  " +
+                Md5Utils.toMD5(request.uri) + "   ");
         if (resultBitmap == null) {
             showLoading(request);
             resultBitmap = onLoadImage(request);
+            Log.e(TAG, "下载完成" + request.uri + "  " + Md5Utils.toMD5(request.uri) + "   ");
             cacheBitmap(request, resultBitmap);
         } else {
             request.onlyCacheMemory = true;
@@ -84,7 +87,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
             return;
         }
         //加载成功并回调接口
-        if (bitmap != null && imageView.getTag().equals(request.uri)) {
+        if (bitmap != null && request.isImageViewTagValid()) {
             imageView.post(new Runnable() {
                 @Override
                 public void run() {
@@ -94,17 +97,22 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
             if (request.mImageLoadListener != null) {
                 request.mImageLoadListener.onResourceReady(bitmap, request.uri);
             }
-        } else if (bitmap == null && hasErrorPlaceholder(request.mDisplayConfig)) {
+        } else if (bitmap == null) {
+            if (hasErrorPlaceholder(request.mDisplayConfig)) {
+                imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageResource(request.mDisplayConfig.errorResId);
+                    }
+                });
+            }
+            Log.e(TAG, "加载失败  " + request.uri + "  " + Md5Utils.toMD5(request.uri) + "   ");
+
             // 加载失败并回调
-            imageView.post(new Runnable() {
-                @Override
-                public void run() {
-                    imageView.setImageResource(request.mDisplayConfig.errorResId);
-                }
-            });
             if (request.mImageLoadListener != null) {
                 request.mImageLoadListener.onFailure();
             }
+
         }
     }
 
