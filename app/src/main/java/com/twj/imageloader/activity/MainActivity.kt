@@ -20,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
         tv_load_remote.setOnClickListener {
             startActivity(Intent(this@MainActivity, LoadRemoteImageActivity::class.java))
+            overridePendingTransition(0,0)
         }
 
         tv_my_list.setOnClickListener {
