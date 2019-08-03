@@ -3,7 +3,7 @@ package com.hust_twj.imageloderlibrary.loader;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.hust_twj.imageloderlibrary.cache.IOUtil;
+import com.hust_twj.imageloderlibrary.utils.IOUtil;
 import com.hust_twj.imageloderlibrary.task.LoadRequest;
 
 import java.io.BufferedInputStream;

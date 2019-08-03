@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 
 
 /**
- * 综合缓存，内存和sd卡双缓存
+ * 内存和sd卡双缓存
  * Created by Wenjing.Tang on 2019-06-16.
  */
 public class DoubleCache implements BitmapCache {

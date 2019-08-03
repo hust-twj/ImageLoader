@@ -25,9 +25,6 @@ public class Md5Utils {
 
     /**
      * 对key进行MD5加密，如果无MD5加密算法，则直接使用key对应的hash值。
-     *
-     * @param key
-     * @return
      */
     public static String toMD5(String key) {
         String cacheKey;
@@ -40,10 +37,6 @@ public class Md5Utils {
         return cacheKey;
     }
 
-    /**
-     * @param bytes
-     * @return
-     */
     private static String bytesToHexString(byte[] bytes) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {

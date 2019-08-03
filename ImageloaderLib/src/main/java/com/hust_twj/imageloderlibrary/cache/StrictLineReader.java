@@ -16,6 +16,8 @@
 
 package com.hust_twj.imageloderlibrary.cache;
 
+import com.hust_twj.imageloderlibrary.utils.IOUtil;
+
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.EOFException;
@@ -90,7 +92,7 @@ class StrictLineReader implements Closeable {
         if (capacity < 0) {
             throw new IllegalArgumentException("capacity <= 0");
         }
-        if (!(charset.equals(IOUtil.US_ASCII))) {
+        if (!(charset.equals(Charset.forName("US-ASCII")))) {
             throw new IllegalArgumentException("Unsupported encoding");
         }
 

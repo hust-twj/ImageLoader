@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
+import com.hust_twj.imageloderlibrary.utils.IOUtil;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedOutputStream;
@@ -24,13 +25,11 @@ import java.io.OutputStream;
  */
 public class DiskCache implements BitmapCache {
 
-    private static final String TAG = "DiskCache";
-    /**
-     * 1MB
-     */
+    private static final String TAG = DiskCache.class.getSimpleName();
+
     private static final int MAX_CACHE_SIZE = 100 * 1024 * 1024;
 
-    private static final String IMAGE_DISK_CACHE = "bitmap";
+    private static final String IMAGE_DISK_CACHE = "image";
 
     private DiskLruCache mDiskLruCache;
 
@@ -70,7 +69,7 @@ public class DiskCache implements BitmapCache {
     public File getDiskCacheDir(Context context, String uniqueName) {
         String cachePath;
         if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            Log.d("", "### context : " + context + ", dir = " + context.getExternalCacheDir());
+            Log.d(TAG, "dir = " + context.getExternalCacheDir());
             cachePath = context.getExternalCacheDir().getPath();
         } else {
             cachePath = context.getCacheDir().getPath();
@@ -115,7 +114,7 @@ public class DiskCache implements BitmapCache {
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
                 if (writeBitmapToDisk(value, outputStream)) {
-                    // 写入disk缓存
+                    // 写入内存缓存
                     editor.commit();
                 } else {
                     editor.abort();

@@ -60,6 +60,9 @@ public class ImageViewUtils {
         return DEFAULT_HEIGHT;
     }
 
+    /**
+     * 根据ImageView属性获取值
+     */
     private static int getImageViewFieldValue(Object object, String fieldName) {
         int value = 0;
         try {
