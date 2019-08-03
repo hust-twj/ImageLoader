@@ -5,6 +5,8 @@ import android.support.annotation.DrawableRes;
 import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
+import com.hust_twj.imageloderlibrary.cache.DiskCache;
+import com.hust_twj.imageloderlibrary.cache.DoubleCache;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.config.LoaderConfig;
@@ -153,6 +155,22 @@ public class ImageLoader {
     public void clearCache() {
         if (mCache != null) {
             mCache.clearCache();
+        }
+    }
+
+    public void clearMemoryCache() {
+        if (mCache instanceof DoubleCache) {
+            ((DoubleCache)mCache).clearMemoryCache();
+        } else if (mCache instanceof MemoryCache) {
+            ((MemoryCache)mCache).clearCache();
+        }
+    }
+
+    public void clearDiskCache() {
+        if (mCache instanceof DoubleCache) {
+            ((DoubleCache)mCache).clearDiskCache();
+        } else if (mCache instanceof DiskCache) {
+            ((DiskCache)mCache).clearCache();
         }
     }
 

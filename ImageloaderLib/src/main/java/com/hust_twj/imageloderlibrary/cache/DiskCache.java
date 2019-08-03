@@ -2,6 +2,7 @@ package com.hust_twj.imageloderlibrary.cache;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
@@ -24,37 +25,19 @@ import java.io.OutputStream;
 public class DiskCache implements BitmapCache {
 
     private static final String TAG = "DiskCache";
+    /**
+     * 1MB
+     */
+    private static final int MAX_CACHE_SIZE = 100 * 1024 * 1024;
+
+    private static final String IMAGE_DISK_CACHE = "bitmap";
 
     private DiskLruCache mDiskLruCache;
 
     private static DiskCache mDiskCache;
 
-    private static final String IMAGE_DISK_CACHE = "bitmap";
-    /**
-     * 缓存最大值
-     */
-    private static final int MAX_DISK_CACHE_SIZE = 100 * 1024 * 1024;
-
-    public DiskCache(Context context) {
+    private DiskCache(Context context) {
         initDiskCache(context);
-    }
-
-    private void initDiskCache(Context context) {
-        try {
-            File cacheDir = getDiskCacheDir(context, IMAGE_DISK_CACHE);
-            if (!cacheDir.exists()) {
-                cacheDir.mkdirs();
-            }
-            mDiskLruCache = DiskLruCache.open(cacheDir, getAppVersion(context),
-                    1, MAX_DISK_CACHE_SIZE);
-        } catch (IOException e) {
-            Log.e(TAG, "initDiskCache Exception: " + e);
-            e.printStackTrace();
-        }
-    }
-
-    public DiskLruCache getDiskLruCache() {
-        return mDiskLruCache;
     }
 
     public static DiskCache getDiskCache(Context context) {
@@ -64,34 +47,30 @@ public class DiskCache implements BitmapCache {
                     mDiskCache = new DiskCache(context);
                 }
             }
-
         }
         return mDiskCache;
     }
 
-    private int getAppVersion(Context context) {
+    /**
+     * 初始化sdcard缓存
+     */
+    private void initDiskCache(Context context) {
         try {
-            PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            return info.versionCode;
-        } catch (Exception e) {
-            Log.e(TAG, "getAppVersion Exception: " + e);
+            File cacheDir = getDiskCacheDir(context, IMAGE_DISK_CACHE);
+            if (!cacheDir.exists()) {
+                cacheDir.mkdirs();
+            }
+            mDiskLruCache = DiskLruCache
+                    .open(cacheDir, getAppVersion(context), 1, MAX_CACHE_SIZE);
+        } catch (IOException e) {
             e.printStackTrace();
         }
-        return 1;
     }
 
-    /**
-     * 获取内存缓存路径
-     * external：如：/storage/emulated/0/Android/data/package_name/cache
-     * internal 如：/data/data/package_name/cache
-     *
-     * @param context    context
-     * @param uniqueName 缓存后缀
-     */
-    public static File getDiskCacheDir(Context context, String uniqueName) {
+    public File getDiskCacheDir(Context context, String uniqueName) {
         String cachePath;
-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())
-                && context.getExternalCacheDir() != null) {
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            Log.d("", "### context : " + context + ", dir = " + context.getExternalCacheDir());
             cachePath = context.getExternalCacheDir().getPath();
         } else {
             cachePath = context.getCacheDir().getPath();
@@ -99,8 +78,19 @@ public class DiskCache implements BitmapCache {
         return new File(cachePath + File.separator + uniqueName);
     }
 
+    private int getAppVersion(Context context) {
+        try {
+            PackageInfo info = context.getPackageManager().getPackageInfo(context.getPackageName(),
+                    0);
+            return info.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return 1;
+    }
+
     @Override
-    public Bitmap get(final String key) {
+    public synchronized Bitmap get(final String key) {
         try {
             DiskLruCache.Snapshot snapshot = mDiskLruCache.get(Md5Utils.toMD5(key));
             if (snapshot != null) {
@@ -108,23 +98,19 @@ public class DiskCache implements BitmapCache {
                 return BitmapFactory.decodeStream(in);
             }
         } catch (Exception e) {
-            Log.e(TAG, "get diskCache exception: " + e);
+            Log.e(TAG, "DiskCache exception: " + e);
             e.printStackTrace();
         }
         return null;
     }
 
     /**
-     * 内存缓存只缓存从网络下载的图片
-     *
-     * @param key   key
-     * @param value value
+     * 内存缓存只缓存从网络下载的图片,本地图片不缓存
      */
     @Override
-    public void put(String key, Bitmap value) {
+    public void put(final String key, Bitmap value) {
         DiskLruCache.Editor editor;
         try {
-            // 如果没有找到对应的缓存，则准备从网络上请求数据，并写入缓存
             editor = mDiskLruCache.edit(Md5Utils.toMD5(key));
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
@@ -137,7 +123,6 @@ public class DiskCache implements BitmapCache {
                 IOUtil.closeQuietly(outputStream);
             }
         } catch (Exception e) {
-            Log.e(TAG, "put diskCache exception: " + e);
             e.printStackTrace();
         }
     }
@@ -149,7 +134,6 @@ public class DiskCache implements BitmapCache {
         try {
             bos.flush();
         } catch (IOException e) {
-            Log.e(TAG, "writeBitmapToDisk failed:  " + e);
             e.printStackTrace();
             result = false;
         } finally {
@@ -162,8 +146,7 @@ public class DiskCache implements BitmapCache {
     public void remove(String key) {
         try {
             mDiskLruCache.remove(Md5Utils.toMD5(key));
-        } catch (Exception e) {
-            Log.e(TAG, "remove diskCache exception: " + e);
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

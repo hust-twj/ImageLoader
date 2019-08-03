@@ -31,11 +31,18 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, GlideListActivity::class.java))
         }
 
-        clean_cache.setOnClickListener {
+        clean_all_cache.setOnClickListener {
             ImageLoader.with().clearCache()
         }
 
-    }
+        clean_memory_cache.setOnClickListener {
+            ImageLoader.with().clearMemoryCache()
+        }
 
+        clean_disk_cache.setOnClickListener {
+            ImageLoader.with().clearDiskCache()
+        }
+
+    }
 
 }
