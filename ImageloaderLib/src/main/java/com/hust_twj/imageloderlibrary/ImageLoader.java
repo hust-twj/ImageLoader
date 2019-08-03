@@ -38,7 +38,7 @@ public class ImageLoader {
 
     private LoadTask mLoadTask;
 
-    //private LoadRequest mLoadRequest = new LoadRequest();
+    private LoadRequest mLoadRequest;
 
     private ImageLoader(Context context) {
         //mContext = context.getApplicationContext();
@@ -71,78 +71,49 @@ public class ImageLoader {
         }
     }
 
-    public void load(@DrawableRes int resID, ImageView imageView) {
-        load(Schema.PREFIX_RESOURCE.concat("://").concat(String.valueOf(resID)), imageView);
+    public ImageLoader load(@DrawableRes int resID) {
+        //资源图片加载，需要构造前缀
+        String uri = Schema.PREFIX_RESOURCE.concat(Schema.SPIT).concat(String.valueOf(resID));
+        load(uri);
+        return this;
     }
 
-    public void load(String uri, ImageView imageView) {
-        load(uri, imageView, null, null);
+    public ImageLoader load(String uri) {
+        mLoadRequest = new LoadRequest();
+        mLoadRequest.setUri(uri);
+        return this;
     }
 
-    public void load(String uri, ImageView imageView, DisplayConfig config) {
-        load(uri, imageView, config, null);
+    public ImageLoader error(@DrawableRes int errorResID) {
+        DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
+                : new DisplayConfig();
+        displayConfig.errorResId = errorResID;
+        mLoadRequest.setDisplayConfig(displayConfig);
+        return this;
     }
 
-    public void load(String uri, ImageView imageView, ImageLoadListener listener) {
-        load(uri, imageView, null, listener);
+    public ImageLoader placeHolder(@DrawableRes int placeHoldResID) {
+        DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
+                : new DisplayConfig();
+        displayConfig.placeHolderResId = placeHoldResID;
+        mLoadRequest.setDisplayConfig(displayConfig);
+        return this;
     }
 
+    public ImageLoader listener(ImageLoadListener listener) {
+        mLoadRequest.setImageLoadListener(listener);
+        return this;
+    }
 
-    public void load(String uri, ImageView imageView, DisplayConfig config, ImageLoadListener listener) {
-        LoadRequest mLoadRequest = new LoadRequest(imageView, uri);
-      /*  mLoadRequest.setImageView(imageView)
-                .setUri(uri)
-                .setDisplayConfig(config)
-                .setImageLoadListener(listener);*/
-        mLoadRequest.setDisplayConfig(config).setImageLoadListener(listener);
+    public ImageLoader into(ImageView imageView) {
+        mLoadRequest.setImageView(imageView);
 
         // 添加对队列中
         mLoadTask.addRequest(mLoadRequest);
         //启动线程池加载图片
         mLoadTask.start();
-    }
-    /*public synchronized ImageLoader load(@DrawableRes int resID) {
-        //资源图片加载，需要构造前缀
-        String uri = Schema.PREFIX_RESOURCE.concat(Schema.SPIT).concat(String.valueOf(resID));
-        mLoadRequest.setUri(uri);
         return this;
     }
-
-    public synchronized ImageLoader load(String uri) {
-        mLoadRequest.setUri(uri);
-        return this;
-    }
-
-    public synchronized ImageLoader error(@DrawableRes int errorResID) {
-        *//*DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
-                : new DisplayConfig();
-        displayConfig.errorResId = errorResID;
-        mLoadRequest.setDisplayConfig(displayConfig);*//*
-        return this;
-    }
-
-    public synchronized ImageLoader placeHolder(@DrawableRes int placeHoldResID) {
-       *//* DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
-                : new DisplayConfig();
-        displayConfig.placeHolderResId = placeHoldResID;
-        mLoadRequest.setDisplayConfig(displayConfig);*//*
-        return this;
-    }
-
-    public synchronized ImageLoader listener(ImageLoadListener listener) {
-        mLoadRequest.setImageLoadListener(listener);
-        return this;
-    }
-
-    public synchronized ImageLoader into(ImageView imageView) {
-        mLoadRequest.setImageView(imageView);
-
-        // 添加对队列中
-        mRequestQueue.addRequest(mLoadRequest);
-        //启动线程池加载图片
-        mRequestQueue.start();
-        return this;
-    }*/
 
     public LoaderConfig getConfig() {
         return mConfig;
@@ -152,25 +123,34 @@ public class ImageLoader {
         mLoadTask.stop();
     }
 
+    /**
+     * 清除全部缓存
+     */
     public void clearCache() {
         if (mCache != null) {
             mCache.clearCache();
         }
     }
 
+    /**
+     * 清除内存缓存
+     */
     public void clearMemoryCache() {
         if (mCache instanceof DoubleCache) {
             ((DoubleCache)mCache).clearMemoryCache();
         } else if (mCache instanceof MemoryCache) {
-            ((MemoryCache)mCache).clearCache();
+            mCache.clearCache();
         }
     }
 
+    /**
+     * 清除磁盘缓存
+     */
     public void clearDiskCache() {
         if (mCache instanceof DoubleCache) {
             ((DoubleCache)mCache).clearDiskCache();
         } else if (mCache instanceof DiskCache) {
-            ((DiskCache)mCache).clearCache();
+            mCache.clearCache();
         }
     }
 

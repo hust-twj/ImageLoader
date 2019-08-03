@@ -104,12 +104,11 @@ public class LocalAlbumActivity extends AppCompatActivity {
     }
 
     public void handleImage(Intent data) {
-        String imagePath = null;
         Uri uri = data.getData();
         if (uri == null) {
             return;
         }
-        ImageLoader.with().load(uri.toString(), mIv);
+        ImageLoader.with().load(uri.toString()).into(mIv);
     }
 
 }

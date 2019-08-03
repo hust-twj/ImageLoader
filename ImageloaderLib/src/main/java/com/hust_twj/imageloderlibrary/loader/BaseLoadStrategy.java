@@ -28,11 +28,12 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
         Bitmap resultBitmap;
         resultBitmap = mCache.get(request.uri);
         Log.e(TAG, "是否有缓存 : " + (resultBitmap != null) + ", uri: " + request.uri + "  " +
-                Md5Utils.toMD5(request.uri) + "   ");
+                Md5Utils.toMD5(request.uri) + "   "  +Thread.currentThread().getName());
         if (resultBitmap == null) {
             showLoading(request);
             resultBitmap = onLoadImage(request);
-            Log.e(TAG, "下载完成" + request.uri + "  " + Md5Utils.toMD5(request.uri) + "   ");
+            Log.e(TAG, "下载完成：" + request.uri + "  " + Md5Utils.toMD5(request.uri) + "   "
+            + Thread.currentThread().getName());
             cacheBitmap(request, resultBitmap);
         } else {
             request.onlyCacheMemory = true;

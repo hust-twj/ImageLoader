@@ -23,7 +23,7 @@ public class LocalWebpActivity extends AppCompatActivity {
 
         mIv = findViewById(R.id.iv_image);
 
-        ImageLoader.with().load(R.drawable.qianxun_webp, mIv);
+        ImageLoader.with().load(R.drawable.qianxun_webp).into(mIv);
 
     }
 }

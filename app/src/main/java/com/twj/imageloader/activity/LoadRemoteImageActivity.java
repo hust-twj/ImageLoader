@@ -4,12 +4,12 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
 import com.twj.imageloader.R;
-import com.twj.imageloader.utils.LogUtils;
 
 /**
  * description ：加载网络图片
@@ -28,18 +28,22 @@ public class LoadRemoteImageActivity extends AppCompatActivity {
 
         String url = "http://p3-q.mafengwo.net/s12/M00/5F/01/wKgED1va9ZeAf0k5AAijT_WanQ006.jpeg";
         ImageLoader.with()
-                .load(url, mIvRemote)
-                /*.onLoadListener(new ImageLoadListener() {
+                .load(url)
+                .error(R.drawable.img_error)
+                .placeHolder(R.drawable.img_loading)
+                .listener(new ImageLoadListener() {
                     @Override
                     public void onResourceReady(Bitmap bitmap, String uri) {
-                        LogUtils.e("twj", "onResourceReady: " + uri);
+                        Log.e("twj", "onResourceReady: " + uri);
                     }
 
                     @Override
                     public void onFailure() {
+                        Log.e("twj", "onError: ");
 
                     }
-                })*/;
+                })
+                .into(mIvRemote);
 
     }
 
