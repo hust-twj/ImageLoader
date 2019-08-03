@@ -21,7 +21,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     /**
      * 图片缓存
      */
-    private static BitmapCache mCache = ImageLoader.with().getConfig().bitmapCache;
+    private static BitmapCache mCache = ImageLoader.get().getConfig().bitmapCache;
 
     @Override
     public final void loadImage(LoadRequest request) {

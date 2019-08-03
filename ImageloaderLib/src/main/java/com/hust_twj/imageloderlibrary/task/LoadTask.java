@@ -48,10 +48,10 @@ public final class LoadTask {
 
     private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
             CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS,
-            new LinkedBlockingDeque<Runnable>(), sThreadFactory);
+            new LinkedBlockingDeque<>(), sThreadFactory);
 
     /**
-     * 启动线程池
+     * 启动线程池，开始图片加载
      */
     public void start() {
         Runnable downloadTask = new Runnable() {
@@ -94,10 +94,10 @@ public final class LoadTask {
     }
 
     /**
-     * 停止
+     * 停止，结束图片加载
      */
     public void stop() {
-        THREAD_POOL_EXECUTOR.shutdownNow();
+        clear();
     }
 
     /**

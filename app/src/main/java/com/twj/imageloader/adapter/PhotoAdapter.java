@@ -56,11 +56,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
         holder.mTvPosition.setText(String.valueOf(position));
 
-        ImageLoader.with().load(url)
+        ImageLoader.get().load(url)
                 .error(R.drawable.img_error)
                 .placeHolder(R.drawable.img_loading)
                 .into(holder.mTvPhoto);
-
     }
 
     @Override

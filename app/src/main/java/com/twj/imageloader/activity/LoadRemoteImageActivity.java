@@ -27,7 +27,7 @@ public class LoadRemoteImageActivity extends AppCompatActivity {
         mIvRemote = findViewById(R.id.iv_image);
 
         String url = "http://p3-q.mafengwo.net/s12/M00/5F/01/wKgED1va9ZeAf0k5AAijT_WanQ006.jpeg";
-        ImageLoader.with()
+        ImageLoader.get()
                 .load(url)
                 .error(R.drawable.img_error)
                 .placeHolder(R.drawable.img_loading)

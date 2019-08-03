@@ -1,15 +1,12 @@
 package com.hust_twj.imageloderlibrary.task;
 
 import android.graphics.Bitmap;
-import android.text.TextUtils;
+import android.support.annotation.NonNull;
 import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
 import com.hust_twj.imageloderlibrary.utils.ImageViewUtils;
-
-import jdk.nashorn.internal.ir.annotations.Ignore;
-
 
 /**
  * 图片加载的请求信息
@@ -38,24 +35,6 @@ public class LoadRequest implements Comparable<LoadRequest> {
 
     //仅在内存中缓存
     public boolean onlyCacheMemory = false;
-
-    public LoadRequest() {
-
-    }
-
-    public LoadRequest(ImageView imageView, String uri) {
-        this.mImageView = imageView;
-        this.uri = uri;
-        imageView.setTag(uri);
-    }
-
-    public LoadRequest(ImageView imageView, String uri, DisplayConfig config, ImageLoadListener listener) {
-        this.mImageView = imageView;
-        this.uri = uri;
-        mDisplayConfig = config;
-        this.mImageLoadListener = listener;
-        imageView.setTag(uri);
-    }
 
     public LoadRequest setImageView(ImageView imageView) {
         this.mImageView = imageView;
@@ -149,7 +128,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
     }
 
     @Override
-    public int compareTo(LoadRequest request) {
+    public int compareTo(@NonNull LoadRequest request) {
         return 0;
     }
 }

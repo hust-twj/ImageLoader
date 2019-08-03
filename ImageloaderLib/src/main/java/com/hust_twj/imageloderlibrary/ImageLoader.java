@@ -44,7 +44,7 @@ public class ImageLoader {
         //mContext = context.getApplicationContext();
     }
 
-    public static ImageLoader with() {
+    public static ImageLoader get() {
         if (sInstance == null) {
             synchronized (ImageLoader.class) {
                 if (sInstance == null) {
@@ -105,6 +105,9 @@ public class ImageLoader {
         return this;
     }
 
+    /**
+     * 开始加载图片
+     */
     public ImageLoader into(ImageView imageView) {
         mLoadRequest.setImageView(imageView);
 

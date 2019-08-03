@@ -26,7 +26,7 @@ public class ImageLoaderApp extends Application {
         LoaderConfig config = new LoaderConfig()
                 .cache(new DoubleCache(this))
                 .threadCount(4);
-        ImageLoader.with().init(config);
+        ImageLoader.get().init(config);
 
     }
 

@@ -108,7 +108,7 @@ public class LocalAlbumActivity extends AppCompatActivity {
         if (uri == null) {
             return;
         }
-        ImageLoader.with().load(uri.toString()).into(mIv);
+        ImageLoader.get().load(uri.toString()).into(mIv);
     }
 
 }

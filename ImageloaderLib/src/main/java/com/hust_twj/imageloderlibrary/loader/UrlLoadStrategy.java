@@ -17,25 +17,27 @@ import java.net.URL;
  */
 public class UrlLoadStrategy extends BaseLoadStrategy {
 
+    private static final String  TAG = UrlLoadStrategy.class.getSimpleName();
+
     @Override
     public Bitmap onLoadImage(LoadRequest loadRequest) {
         final String imageUrl = loadRequest.uri;
-        InputStream is = null;
+        InputStream inputStream = null;
         Bitmap bitmap = null;
-        HttpURLConnection conn = null;
+        HttpURLConnection urlConnection = null;
         try {
             URL url = new URL(imageUrl);
-            conn = (HttpURLConnection) url.openConnection();
-            is = new BufferedInputStream(conn.getInputStream());
-            bitmap = BitmapFactory.decodeStream(is, null, null);
+            urlConnection = (HttpURLConnection) url.openConnection();
+            inputStream = new BufferedInputStream(urlConnection.getInputStream());
+            bitmap = BitmapFactory.decodeStream(inputStream, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (is != null) {
-                IOUtil.closeQuietly(is);
+            if (inputStream != null) {
+                IOUtil.closeQuietly(inputStream);
             }
-            if (conn != null) {
-                conn.disconnect();
+            if (urlConnection != null) {
+                urlConnection.disconnect();
             }
         }
         return bitmap;

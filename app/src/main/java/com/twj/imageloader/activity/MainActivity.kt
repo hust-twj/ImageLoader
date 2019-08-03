@@ -32,15 +32,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         clean_all_cache.setOnClickListener {
-            ImageLoader.with().clearCache()
+            ImageLoader.get().clearCache()
         }
 
         clean_memory_cache.setOnClickListener {
-            ImageLoader.with().clearMemoryCache()
+            ImageLoader.get().clearMemoryCache()
         }
 
         clean_disk_cache.setOnClickListener {
-            ImageLoader.with().clearDiskCache()
+            ImageLoader.get().clearDiskCache()
         }
 
     }
