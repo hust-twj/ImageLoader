@@ -21,7 +21,7 @@ public class Schema {
     /**
      * 资源图片uri前缀
      */
-    public static final String PREFIX_RESOURCE = "resource";
+    public static final String PREFIX_RESOURCE = "drawable";
 
     public static final String SPIT = "://";
 

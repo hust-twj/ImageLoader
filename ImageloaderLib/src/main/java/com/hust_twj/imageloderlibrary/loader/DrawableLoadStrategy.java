@@ -12,7 +12,7 @@ import com.hust_twj.imageloderlibrary.task.LoadRequest;
  * 资源图片加载器
  * Created by Wenjing.Tang on 2019-07-16.
  */
-public class ResourceLoadStrategy extends BaseLoadStrategy {
+public class DrawableLoadStrategy extends BaseLoadStrategy {
 
     @Override
     public Bitmap onLoadImage(LoadRequest request) {

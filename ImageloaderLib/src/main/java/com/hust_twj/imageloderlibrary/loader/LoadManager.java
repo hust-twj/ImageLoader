@@ -31,11 +31,11 @@ public class LoadManager {
      */
     public ILoadStrategy getLoader(String uri) {
         if (uri.startsWith(Schema.PREFIX_HTTP) || uri.startsWith(Schema.PREFIX_HTTPS)) {
-            return new UrlLoadStrategy();
+            return new NetworkLoadStrategy();
         } else if (uri.startsWith(Schema.PREFIX_FILE) || uri.startsWith(Schema.PREFIX_CONTENT)) {
             return new LocalLoadStrategy();
         } else if (uri.startsWith(Schema.PREFIX_RESOURCE)) {
-            return new ResourceLoadStrategy();
+            return new DrawableLoadStrategy();
         }
         return null;
     }

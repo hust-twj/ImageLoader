@@ -17,9 +17,9 @@ import java.net.URL;
  * 网络图片加载器
  * Created by Wenjing.Tang on 2019-07-16.
  */
-public class UrlLoadStrategy extends BaseLoadStrategy {
+public class NetworkLoadStrategy extends BaseLoadStrategy {
 
-    private static final String TAG = UrlLoadStrategy.class.getSimpleName();
+    private static final String TAG = NetworkLoadStrategy.class.getSimpleName();
 
     @Override
     public Bitmap onLoadImage(LoadRequest request) {
