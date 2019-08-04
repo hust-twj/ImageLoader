@@ -7,7 +7,7 @@ import com.hust_twj.imageloderlibrary.cache.MemoryCache;
  * ImageLoader的配置类
  *
  * @author hust_twj
- * @date 2019/6/11
+ * @date 2019/7/11
  */
 public class LoaderConfig {
 

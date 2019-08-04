@@ -4,16 +4,14 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.hust_twj.imageloderlibrary.config.DisplayConfig;
+
 import java.lang.reflect.Field;
 
 /**
  * Created by Wenjing.Tang on 2019-07-16.
  */
 public class ImageViewUtils {
-
-    // todo : 默认宽高 配置类中
-    private static int DEFAULT_WIDTH = 200;
-    private static int DEFAULT_HEIGHT = 200;
 
     /**
      * 获取ImageView宽度
@@ -34,7 +32,7 @@ public class ImageViewUtils {
             }
             return width;
         }
-        return DEFAULT_WIDTH;
+        return DisplayConfig.DEFAULT_WIDTH;
     }
 
     /**
@@ -47,7 +45,7 @@ public class ImageViewUtils {
             int height = 0;
             if (params != null
                     && params.height != ViewGroup.LayoutParams.WRAP_CONTENT) {
-                height = imageView.getHeight(); // Get actual image height
+                height = imageView.getHeight();
             }
             if (height <= 0 && params != null) {
                 height = params.height;
@@ -57,7 +55,7 @@ public class ImageViewUtils {
             }
             return height;
         }
-        return DEFAULT_HEIGHT;
+        return DisplayConfig.DEFAULT_HEIGHT;
     }
 
     /**
