@@ -21,7 +21,7 @@ import com.twj.imageloader.R;
 
 
 /**
- * description ：加载PNG图片
+ * description ：加载相册图片
  * Created by Wenjing.Tang on 2019-05-22.
  */
 public class LocalAlbumActivity extends AppCompatActivity {

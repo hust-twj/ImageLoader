@@ -41,14 +41,14 @@ public final class LoadTask {
         private final AtomicInteger mCount = new AtomicInteger(1);
 
         @Override
-        public Thread newThread(@NonNull Runnable r) {
-            return new Thread(r, "ImageLoaderThread#" + mCount.getAndIncrement());
+        public Thread newThread(@NonNull Runnable runnable) {
+            return new Thread(runnable, "ImageLoaderThread#" + mCount.getAndIncrement());
         }
     };
 
     private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
             CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS,
-            new LinkedBlockingDeque<>(), sThreadFactory);
+            new LinkedBlockingDeque<Runnable>(), sThreadFactory);
 
     /**
      * 启动线程池，开始图片加载
@@ -97,6 +97,7 @@ public final class LoadTask {
      * 停止，结束图片加载
      */
     public void stop() {
+        // TODO: 2019/8/4
         clear();
     }
 
@@ -114,10 +115,6 @@ public final class LoadTask {
 
     public void clear() {
         mRequestQueue.clear();
-    }
-
-    public BlockingQueue<LoadRequest> getAllRequests() {
-        return mRequestQueue;
     }
 
     /**

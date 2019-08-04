@@ -100,13 +100,21 @@ public class ImageLoader {
         return this;
     }
 
+    public ImageLoader displayRaw(boolean  displayRaw) {
+        DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
+                : new DisplayConfig();
+        displayConfig.displayRaw = displayRaw;
+        mLoadRequest.setDisplayConfig(displayConfig);
+        return this;
+    }
+
     public ImageLoader listener(ImageLoadListener listener) {
         mLoadRequest.setImageLoadListener(listener);
         return this;
     }
 
     /**
-     * 开始加载图片
+     * 开始图片加载
      */
     public ImageLoader into(ImageView imageView) {
         mLoadRequest.setImageView(imageView);
@@ -122,6 +130,9 @@ public class ImageLoader {
         return mConfig;
     }
 
+    /**
+     * 取消图片加载请求
+     */
     public void stop() {
         mLoadTask.stop();
     }

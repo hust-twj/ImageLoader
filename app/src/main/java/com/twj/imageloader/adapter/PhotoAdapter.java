@@ -51,14 +51,15 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
         String url = mDataList.get(position);
 
         DisplayConfig config = new DisplayConfig();
-        config.placeHolderResId = R.drawable.img_loading;
+        config.placeHolderResId = R.drawable.img_place_holder;
         config.errorResId = R.drawable.img_error;
 
         holder.mTvPosition.setText(String.valueOf(position));
 
         ImageLoader.get().load(url)
                 .error(R.drawable.img_error)
-                .placeHolder(R.drawable.img_loading)
+                .placeHolder(R.drawable.img_place_holder)
+                .displayRaw(false)
                 .into(holder.mTvPhoto);
     }
 

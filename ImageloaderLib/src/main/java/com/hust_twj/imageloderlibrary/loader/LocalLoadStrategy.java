@@ -5,14 +5,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.BitmapFactory.Options;
 import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
 import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.task.LoadRequest;
-import com.hust_twj.imageloderlibrary.utils.BitmapDecoder;
+import com.hust_twj.imageloderlibrary.utils.ImageDecoder;
 
 import java.io.File;
 
@@ -33,15 +32,11 @@ public class LocalLoadStrategy extends BaseLoadStrategy {
         // 从sd卡中加载的图片仅缓存到内存中,不做本地缓存
         request.onlyCacheMemory = true;
 
-        // 加载图片
-        BitmapDecoder decoder = new BitmapDecoder() {
-
-            @Override
-            public Bitmap decodeBitmapWithOption(Options options) {
-                return BitmapFactory.decodeFile(imagePath, options);
-            }
-        };
-        return decoder.decodeBitmap(request.getImageViewWidth(), request.getImageViewHeight());
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
+        if (request.mDisplayConfig.displayRaw) {
+            return bitmap;
+        }
+        return ImageDecoder.decodeBitmap(bitmap, request.getImageViewWidth(), request.getImageViewHeight() );
     }
 
     private String getPath(Context context, String uriString) {

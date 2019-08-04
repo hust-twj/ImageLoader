@@ -59,7 +59,8 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     }
 
     /**
-     * 显示加载中的视图,注意这里也要判断ImageView的tag与image uri的相等性,否则逆序加载时出现问题
+     * 显示加载中的占位图
+     * 注意：要判断ImageView的tag与image uri的相等性
      *
      * @param request request
      */
@@ -92,6 +93,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
             imageView.post(new Runnable() {
                 @Override
                 public void run() {
+                    Log.e(TAG, bitmap.getWidth() + "*" + bitmap.getHeight());
                     imageView.setImageBitmap(bitmap);
                 }
             });

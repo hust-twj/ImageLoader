@@ -30,7 +30,7 @@ public class LoadRemoteImageActivity extends AppCompatActivity {
         ImageLoader.get()
                 .load(url)
                 .error(R.drawable.img_error)
-                .placeHolder(R.drawable.img_loading)
+                .placeHolder(R.drawable.img_place_holder)
                 .listener(new ImageLoadListener() {
                     @Override
                     public void onResourceReady(Bitmap bitmap, String uri) {
