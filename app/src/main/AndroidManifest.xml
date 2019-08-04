@@ -28,6 +28,7 @@
 
         <activity android:name=".activity.MyListActivity"/>
         <activity android:name=".activity.GlideListActivity"/>
+        <activity android:name=".activity.PicassoListActivity"/>
 
         <activity android:name=".activity.local.LocalJpegActivity"/>
         <activity android:name=".activity.local.LocalJpgActivity"/>

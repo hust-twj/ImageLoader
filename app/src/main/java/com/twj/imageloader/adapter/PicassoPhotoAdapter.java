@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
+import com.squareup.picasso.Picasso;
 import com.twj.imageloader.R;
 
 import org.jetbrains.annotations.NotNull;
@@ -18,14 +18,14 @@ import java.util.List;
 
 /**
  * @author hust_twj
- * @date 2019/6/11
+ * @date 2019/8/4
  */
-public class GlidePhotoAdapter extends RecyclerView.Adapter<GlidePhotoAdapter.ViewHolder> {
+public class PicassoPhotoAdapter extends RecyclerView.Adapter<PicassoPhotoAdapter.ViewHolder> {
 
     private Context mContext;
     private List<String> mDataList;
 
-    public GlidePhotoAdapter(Context context) {
+    public PicassoPhotoAdapter(Context context) {
         mContext = context;
 
         initData();
@@ -40,18 +40,18 @@ public class GlidePhotoAdapter extends RecyclerView.Adapter<GlidePhotoAdapter.Vi
 
     @NotNull
     @Override
-    public GlidePhotoAdapter.ViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
+    public PicassoPhotoAdapter.ViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.layout_photo_item,
                 parent, false));
     }
 
     @Override
-    public void onBindViewHolder(@NotNull GlidePhotoAdapter.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NotNull PicassoPhotoAdapter.ViewHolder holder, final int position) {
         final String url = mDataList.get(position);
 
         holder.mTvPosition.setText(String.valueOf(position));
 
-        Glide.with(holder.mTvPhoto.getContext())
+        Picasso.get()
                 .load(url)
                 .error(R.drawable.img_error)
                 .placeholder(R.drawable.img_place_holder)

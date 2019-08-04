@@ -7,16 +7,16 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import com.twj.imageloader.R;
-import com.twj.imageloader.adapter.GlidePhotoAdapter;
+import com.twj.imageloader.adapter.PicassoPhotoAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author hust_twj
- * @date 2019/6/10
+ * @date 2019/8/4
  */
-public class GlideListActivity extends AppCompatActivity {
+public class PicassoListActivity extends AppCompatActivity {
 
     private List<String> imageList = new ArrayList<>();
 
@@ -28,7 +28,7 @@ public class GlideListActivity extends AppCompatActivity {
         RecyclerView mRvPhotoList = findViewById(R.id.rv_photo_list);
         mRvPhotoList.setLayoutManager(new LinearLayoutManager(this));
 
-        GlidePhotoAdapter adapter = new GlidePhotoAdapter(this);
+        PicassoPhotoAdapter adapter = new PicassoPhotoAdapter(this);
         adapter.setDataList(generateImage());
         mRvPhotoList.setAdapter(adapter);
     }

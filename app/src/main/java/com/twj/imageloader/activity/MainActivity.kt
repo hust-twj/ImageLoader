@@ -31,6 +31,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, GlideListActivity::class.java))
         }
 
+        tv_picasso_list.setOnClickListener {
+            startActivity(Intent(this@MainActivity, PicassoListActivity::class.java))
+        }
+
         clean_all_cache.setOnClickListener {
             ImageLoader.get().clearCache()
         }
