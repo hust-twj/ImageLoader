@@ -12,6 +12,6 @@ public interface ImageLoadListener {
 
     void onResourceReady(Bitmap bitmap, String uri);
 
-    void onFailure(Exception e);
+    void onFailure();
 
 }

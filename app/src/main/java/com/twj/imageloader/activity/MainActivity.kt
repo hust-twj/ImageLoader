@@ -4,8 +4,6 @@ import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import com.hust_twj.imageloderlibrary.ImageLoader
-import com.hust_twj.imageloderlibrary.cache.DoubleCache
-import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig
 import com.twj.imageloader.R
 import com.twj.imageloader.activity.local.LoadLocalImageActivity
 import kotlinx.android.synthetic.main.activity_main.*
@@ -16,14 +14,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        initImageLoader()
-
         tv_load_local.setOnClickListener {
             startActivity(Intent(this@MainActivity, LoadLocalImageActivity::class.java))
         }
 
         tv_load_remote.setOnClickListener {
             startActivity(Intent(this@MainActivity, LoadRemoteImageActivity::class.java))
+            overridePendingTransition(0,0)
         }
 
         tv_my_list.setOnClickListener {
@@ -34,23 +31,18 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, GlideListActivity::class.java))
         }
 
-        clean_cache.setOnClickListener {
-            ImageLoader.with().clearMemoryCache()
-            ImageLoader.with().clearDiskCache()
+        clean_all_cache.setOnClickListener {
+            ImageLoader.get().clearCache()
+        }
+
+        clean_memory_cache.setOnClickListener {
+            ImageLoader.get().clearMemoryCache()
+        }
+
+        clean_disk_cache.setOnClickListener {
+            ImageLoader.get().clearDiskCache()
         }
 
     }
 
-    /**
-     * 初始化ImageLoader
-     */
-    private fun initImageLoader() {
-        val config = ImageLoaderConfig()
-                .placeHolder(R.drawable.img_loading)
-                .error(R.drawable.img_error)
-                .displayRaw(true)
-                .cache(DoubleCache(this))
-                .threadCount(4)
-        ImageLoader.with().init(config)
-    }
 }

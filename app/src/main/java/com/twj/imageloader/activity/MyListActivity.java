@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
+import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.twj.imageloader.adapter.PhotoAdapter;
 import com.twj.imageloader.R;
 
@@ -90,4 +91,9 @@ public class MyListActivity extends AppCompatActivity {
         return imageList;
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ImageLoader.get().stop();
+    }
 }

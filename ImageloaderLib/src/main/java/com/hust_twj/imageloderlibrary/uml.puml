@@ -1,0 +1,106 @@
+@startuml
+
+interface BitmapCache
+class DiskCache
+class DiskLruCache
+class DoubleCache
+class MemoryCache
+
+class LoaderConfig
+class DisplayConfig
+
+interface ImageLoadListener
+
+interface ILoadStrategy
+abstract BaseLoadStrategy
+class NetworkLoadStrategy
+class DrawableLoadStrategy
+class LocalLoadStrategy
+class LoadManager
+
+class LoadRequest
+class LoadTask
+
+class ImageLoader
+
+BitmapCache <|.. DiskCache
+BitmapCache <|.. DoubleCache
+BitmapCache <|.. MemoryCache
+
+ILoadStrategy <|.. BaseLoadStrategy
+BaseLoadStrategy <|-- NetworkLoadStrategy
+BaseLoadStrategy <|-- DrawableLoadStrategy
+BaseLoadStrategy <|-- LocalLoadStrategy
+
+interface BitmapCache {
+Bitmap get(String key)
+put(String key, Bitmap value)
+remove(String key)
+clearCache()
+}
+
+interface ILoadStrategy {
+loadImage(LoadRequest request)
+}
+
+abstract class BaseLoadStrategy {
+{abstract} Bitmap onLoadImage(LoadRequest request)
+updateImageView(LoadRequest request, Bitmap bitmap)
+}
+
+class DiskCache {
+DiskLruCache mDiskLruCache
+}
+
+class MemoryCache {
+LruCache<String, Bitmap> mMemoryCache
+}
+
+DiskCache <.. DiskLruCache
+DoubleCache <.. MemoryCache
+DoubleCache <.. DiskCache
+
+
+class ImageLoader {
+static ImageLoader sInstance
+LoaderConfig mConfig
+BitmapCache mCache
+LoadTask mLoadTask
+LoadRequest mLoadRequest
+
+void get()
+void init(LoaderConfig config)
+ImageLoader load(int resID)
+ImageLoader load(String uri)
+ImageLoader error(int errorResID)
+ImageLoader(int placeHoldResID)
+ImageLoader displayRaw(boolean  displayRaw)
+ImageLoader listener(ImageLoadListener listener)
+ImageLoader into(ImageView imageView)
+}
+
+class LoadTask {
+void start()
+}
+
+class DoubleCache {
+DiskCache mDiskCache;
+MemoryCache mMemoryCache
+}
+
+ImageLoader <.. LoadTask
+ImageLoader <.. LoadRequest
+ImageLoader <.. LoaderConfig
+ImageLoader <.. BitmapCache
+
+LoadRequest <.. DisplayConfig
+LoadRequest <.. ImageLoadListener
+
+class LoadManager {
+ILoadStrategy getLoader(String uri)
+}
+
+LoadManager <.. ILoadStrategy
+LoadTask <.. LoadManager
+
+@enduml

@@ -1,7 +1,6 @@
 package com.twj.imageloader.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,9 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
-import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
+import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.twj.imageloader.R;
-import com.twj.imageloader.utils.LogUtils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -50,29 +48,19 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NotNull final PhotoAdapter.ViewHolder holder, final int position) {
-        final String url = mDataList.get(position);
+        String url = mDataList.get(position);
+
+        DisplayConfig config = new DisplayConfig();
+        config.placeHolderResId = R.drawable.img_place_holder;
+        config.errorResId = R.drawable.img_error;
 
         holder.mTvPosition.setText(String.valueOf(position));
-        holder.mTvPhoto.post(new Runnable() {
-            @Override
-            public void run() {
-                ImageLoader.with()
-                        .load(url, holder.mTvPhoto, holder.mTvPhoto.getWidth(), holder.mTvPhoto.getHeight())
-                .onLoadListener(new ImageLoadListener() {
-                    @Override
-                    public void onResourceReady(Bitmap bitmap, String uri) {
 
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        LogUtils.e("error_twj123" , " 错误位置：  " + position + "   " + e.toString());
-
-                    }
-                });
-            }
-        });
-
+        ImageLoader.get().load(url)
+                .error(R.drawable.img_error)
+                .placeHolder(R.drawable.img_place_holder)
+                .displayRaw(false)
+                .into(holder.mTvPhoto);
     }
 
     @Override

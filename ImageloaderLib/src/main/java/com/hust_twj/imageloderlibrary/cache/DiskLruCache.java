@@ -16,6 +16,8 @@
 
 package com.hust_twj.imageloderlibrary.cache;
 
+import com.hust_twj.imageloderlibrary.utils.IOUtil;
+
 import java.io.BufferedWriter;
 import java.io.Closeable;
 import java.io.EOFException;
@@ -26,10 +28,10 @@ import java.io.FileOutputStream;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -86,18 +88,21 @@ import java.util.regex.Pattern;
  * responding appropriately.
  */
 public final class DiskLruCache implements Closeable {
-    static final String JOURNAL_FILE = "journal";
-    static final String JOURNAL_FILE_TEMP = "journal.tmp";
-    static final String JOURNAL_FILE_BACKUP = "journal.bkp";
-    static final String MAGIC = "libcore.io.DiskLruCache";
-    static final String VERSION_1 = "1";
-    static final long ANY_SEQUENCE_NUMBER = -1;
-    static final String STRING_KEY_PATTERN = "[a-z0-9_-]{1,120}";
-    static final Pattern LEGAL_KEY_PATTERN = Pattern.compile(STRING_KEY_PATTERN);
+    private static final String JOURNAL_FILE = "journal";
+    private static final String JOURNAL_FILE_TEMP = "journal.tmp";
+    private static final String JOURNAL_FILE_BACKUP = "journal.bkp";
+    private static final String MAGIC = "libcore.io.DiskLruCache";
+    private static final String VERSION_1 = "1";
+    private static final long ANY_SEQUENCE_NUMBER = -1;
+    private static final String STRING_KEY_PATTERN = "[a-z0-9_-]{1,120}";
+    private static final Pattern LEGAL_KEY_PATTERN = Pattern.compile(STRING_KEY_PATTERN);
     private static final String CLEAN = "CLEAN";
     private static final String DIRTY = "DIRTY";
     private static final String REMOVE = "REMOVE";
     private static final String READ = "READ";
+
+    private static final Charset US_ASCII = Charset.forName("US-ASCII");
+    private final Charset UTF_8 = Charset.forName("UTF-8");
 
     /*
      * This cache uses a journal file named "journal". A typical journal file
@@ -162,7 +167,7 @@ public final class DiskLruCache implements Closeable {
     /**
      * This cache uses a single background thread to evict entries.
      */
-    final ThreadPoolExecutor executorService =
+    private final ThreadPoolExecutor executorService =
             new ThreadPoolExecutor(0, 1, 60L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
     private final Callable<Void> cleanupCallable = new Callable<Void>() {
         public Void call() throws Exception {
@@ -246,7 +251,7 @@ public final class DiskLruCache implements Closeable {
     }
 
     private void readJournal() throws IOException {
-        StrictLineReader reader = new StrictLineReader(new FileInputStream(journalFile), IOUtil.US_ASCII);
+        StrictLineReader reader = new StrictLineReader(new FileInputStream(journalFile), US_ASCII);
         try {
             String magic = reader.readLine();
             String version = reader.readLine();
@@ -278,7 +283,7 @@ public final class DiskLruCache implements Closeable {
                 rebuildJournal();
             } else {
                 journalWriter = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(journalFile, true), IOUtil.US_ASCII));
+                        new FileOutputStream(journalFile, true), US_ASCII));
             }
         } finally {
             IOUtil.closeQuietly(reader);
@@ -357,7 +362,7 @@ public final class DiskLruCache implements Closeable {
         }
 
         Writer writer = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(journalFileTmp), IOUtil.US_ASCII));
+                new OutputStreamWriter(new FileOutputStream(journalFileTmp), US_ASCII));
         try {
             writer.write(MAGIC);
             writer.write("\n");
@@ -387,7 +392,7 @@ public final class DiskLruCache implements Closeable {
         journalFileBackup.delete();
 
         journalWriter = new BufferedWriter(
-                new OutputStreamWriter(new FileOutputStream(journalFile, true), IOUtil.US_ASCII));
+                new OutputStreamWriter(new FileOutputStream(journalFile, true),  US_ASCII));
     }
 
     private static void deleteIfExists(File file) throws IOException {
@@ -644,7 +649,7 @@ public final class DiskLruCache implements Closeable {
         if (journalWriter == null) {
             return; // Already closed.
         }
-        for (Entry entry : new ArrayList<Entry>(lruEntries.values())) {
+        for (Entry entry : new ArrayList<>(lruEntries.values())) {
             if (entry.currentEditor != null) {
                 entry.currentEditor.abort();
             }
@@ -679,10 +684,6 @@ public final class DiskLruCache implements Closeable {
         }
     }
 
-    private static String inputStreamToString(InputStream in) throws IOException {
-        return IOUtil.readFully(new InputStreamReader(in, IOUtil.UTF_8));
-    }
-
     /**
      * A snapshot of the values for an entry.
      */
@@ -713,13 +714,6 @@ public final class DiskLruCache implements Closeable {
          */
         public InputStream getInputStream(int index) {
             return ins[index];
-        }
-
-        /**
-         * Returns the string value for {@code index}.
-         */
-        public String getString(int index) throws IOException {
-            return inputStreamToString(getInputStream(index));
         }
 
         /**
@@ -778,15 +772,6 @@ public final class DiskLruCache implements Closeable {
         }
 
         /**
-         * Returns the last committed value as a string, or null if no value
-         * has been committed.
-         */
-        public String getString(int index) throws IOException {
-            InputStream in = newInputStream(index);
-            return in != null ? inputStreamToString(in) : null;
-        }
-
-        /**
          * Returns a new unbuffered output stream to write the value at
          * {@code index}. If the underlying output stream encounters errors
          * when writing to the filesystem, this edit will be aborted when
@@ -830,7 +815,7 @@ public final class DiskLruCache implements Closeable {
         public void set(int index, String value) throws IOException {
             Writer writer = null;
             try {
-                writer = new OutputStreamWriter(newOutputStream(index), IOUtil.UTF_8);
+                writer = new OutputStreamWriter(newOutputStream(index), UTF_8);
                 writer.write(value);
             } finally {
                 IOUtil.closeQuietly(writer);

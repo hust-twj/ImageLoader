@@ -9,7 +9,7 @@ import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.twj.imageloader.R;
 
 /**
- * description ：加载PNG图片
+ * description ：加载JPG图片
  * Created by Wenjing.Tang on 2019-05-22.
  */
 public class LocalJpgActivity extends AppCompatActivity {
@@ -23,6 +23,6 @@ public class LocalJpgActivity extends AppCompatActivity {
 
         mIv = findViewById(R.id.iv_image);
 
-        ImageLoader.with().load(R.drawable.qianxun_jpg, mIv);
+        ImageLoader.get().load(R.drawable.qianxun_jpg).into(mIv);
     }
 }
