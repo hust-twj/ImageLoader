@@ -8,7 +8,6 @@ import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
 import com.hust_twj.imageloderlibrary.task.LoadRequest;
 import com.hust_twj.imageloderlibrary.utils.CheckUtil;
-import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 /**
  * 图片加载器
@@ -28,11 +27,11 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
         Bitmap resultBitmap;
         resultBitmap = mCache.get(request.uri);
         Log.e(TAG, "是否有缓存 : " + (resultBitmap != null) + ", uri: " + request.uri + "  " +
-                Md5Utils.toMD5(request.uri) + "   "  +Thread.currentThread().getName());
+                request.uri + "   "  +Thread.currentThread().getName());
         if (resultBitmap == null) {
             showLoading(request);
             resultBitmap = onLoadImage(request);
-            Log.e(TAG, "下载完成：" + request.uri + "  " + Md5Utils.toMD5(request.uri) + "   "
+            Log.e(TAG, "下载完成：" + request.uri + "  " + request.uri + "   "
             + Thread.currentThread().getName());
             cacheBitmap(request, resultBitmap);
         } else {
@@ -109,7 +108,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
                     }
                 });
             }
-            Log.e(TAG, "加载失败  " + request.uri + "  " + Md5Utils.toMD5(request.uri) + "   ");
+            Log.e(TAG, "加载失败  " + request.uri + "  " + request.uri + "   ");
 
             // 加载失败并回调
             if (request.mImageLoadListener != null) {

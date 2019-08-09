@@ -9,7 +9,6 @@ import android.os.Environment;
 import android.util.Log;
 
 import com.hust_twj.imageloderlibrary.utils.IOUtil;
-import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -91,7 +90,7 @@ public class DiskCache implements BitmapCache {
     @Override
     public synchronized Bitmap get(final String key) {
         try {
-            DiskLruCache.Snapshot snapshot = mDiskLruCache.get(Md5Utils.toMD5(key));
+            DiskLruCache.Snapshot snapshot = mDiskLruCache.get(key);
             if (snapshot != null) {
                 InputStream in = snapshot.getInputStream(0);
                 return BitmapFactory.decodeStream(in);
@@ -110,7 +109,7 @@ public class DiskCache implements BitmapCache {
     public void put(final String key, Bitmap value) {
         DiskLruCache.Editor editor;
         try {
-            editor = mDiskLruCache.edit(Md5Utils.toMD5(key));
+            editor = mDiskLruCache.edit(key);
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
                 if (writeBitmapToDisk(value, outputStream)) {
@@ -144,7 +143,7 @@ public class DiskCache implements BitmapCache {
     @Override
     public void remove(String key) {
         try {
-            mDiskLruCache.remove(Md5Utils.toMD5(key));
+            mDiskLruCache.remove(key);
         } catch (IOException e) {
             e.printStackTrace();
         }
