@@ -6,6 +6,7 @@ import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
+import com.hust_twj.imageloderlibrary.constant.Constants;
 import com.hust_twj.imageloderlibrary.task.LoadRequest;
 import com.hust_twj.imageloderlibrary.utils.CheckUtil;
 
@@ -20,13 +21,13 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     /**
      * 图片缓存
      */
-    private static BitmapCache mCache = ImageLoader.get().getConfig().bitmapCache;
+    private BitmapCache mCache = ImageLoader.get().getConfig().bitmapCache;
 
     @Override
     public final void loadImage(LoadRequest request) {
         Bitmap resultBitmap;
         resultBitmap = mCache.get(request.uri);
-        Log.e(TAG, "是否有缓存 : " + (resultBitmap != null) + ", uri: " + request.uri + "  " +
+        Log.e(TAG, "是否有缓存 : " + (resultBitmap != null) + ", uri: " +
                 request.uri + "   "  +Thread.currentThread().getName());
         if (resultBitmap == null) {
             showLoading(request);
@@ -65,7 +66,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      */
     private void showLoading(final LoadRequest request) {
         final ImageView imageView = request.mImageView;
-        if (request.isImageViewTagValid() && request.placeHolderResID > 0) {
+        if (request.isImageViewTagValid() && request.placeHolderResID != Constants.DEFAULT_RES_ID) {
             imageView.post(new Runnable() {
 
                 @Override
@@ -92,7 +93,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
             imageView.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, bitmap.getWidth() + "*" + bitmap.getHeight());
+                    Log.e(TAG, "updateImageView：" + bitmap.getWidth() + "*" + bitmap.getHeight() + "  " +request.uri);
                     imageView.setImageBitmap(bitmap);
                 }
             });
@@ -100,7 +101,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
                 request.mImageLoadListener.onResourceReady(bitmap, request.uri);
             }
         } else if (bitmap == null) {
-            if (request.errorResID > 0) {
+            if (request.errorResID != Constants.DEFAULT_RES_ID) {
                 imageView.post(new Runnable() {
                     @Override
                     public void run() {

@@ -1,7 +1,5 @@
 package com.hust_twj.imageloderlibrary.task;
 
-import android.app.Activity;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.hust_twj.imageloderlibrary.constant.Schema;
@@ -10,11 +8,7 @@ import com.hust_twj.imageloderlibrary.loader.LoadManager;
 import com.hust_twj.imageloderlibrary.utils.CheckUtil;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,24 +28,6 @@ public final class ImageLoadTask {
      */
     private AtomicInteger mSerialNumber = new AtomicInteger(0);
 
-    private static final int CPU_COUNT = Runtime.getRuntime().availableProcessors();
-    private static final int CORE_POOL_SIZE = CPU_COUNT + 1;
-    private static final int MAX_POOL_SIZE = CPU_COUNT * 2 + 1;
-    private static final long KEEP_ALIVE = 10L;
-
-    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
-        private final AtomicInteger mCount = new AtomicInteger(1);
-
-        @Override
-        public Thread newThread(@NonNull Runnable runnable) {
-            return new Thread(runnable, "ImageLoaderThread#" + mCount.getAndIncrement());
-        }
-    };
-
-    private static final ThreadPoolExecutor THREAD_POOL_EXECUTOR = new ThreadPoolExecutor(
-            CORE_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE, TimeUnit.SECONDS,
-            new LinkedBlockingDeque<Runnable>(), sThreadFactory);
-
     /**
      * 启动线程池，开始图片加载
      */
@@ -67,7 +43,7 @@ public final class ImageLoadTask {
                     if (request.isCancel) {
                         return;
                     }
-                    Log.e(TAG, "isActivityFinished: " + CheckUtil.isActivityFinished(request));
+                    Log.e(TAG, "isActivityFinished: " + CheckUtil.isActivityFinished(request) + "  " + request.uri);
                     if (CheckUtil.isActivityFinished(request)) {
                         return;
                     }
@@ -83,7 +59,7 @@ public final class ImageLoadTask {
                 }
             }
         };
-        THREAD_POOL_EXECUTOR.execute(downloadTask);
+        ThreadPoolManager.getInstance().execute(downloadTask);
     }
 
     /**

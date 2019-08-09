@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.util.Log;
 
+import com.hust_twj.imageloderlibrary.task.ThreadPoolManager;
 import com.hust_twj.imageloderlibrary.utils.IOUtil;
 
 import java.io.BufferedOutputStream;
@@ -106,26 +107,33 @@ public class DiskCache implements BitmapCache {
      * 内存缓存只缓存从网络下载的图片,本地图片不缓存
      */
     @Override
-    public void put(final String key, Bitmap value) {
-        DiskLruCache.Editor editor;
-        try {
-            editor = mDiskLruCache.edit(key);
-            if (editor != null) {
-                OutputStream outputStream = editor.newOutputStream(0);
-                if (writeBitmapToDisk(value, outputStream)) {
-                    // 写入内存缓存
-                    editor.commit();
-                } else {
-                    editor.abort();
+    public void put(final String key, final Bitmap value) {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                DiskLruCache.Editor editor;
+                try {
+                    editor = mDiskLruCache.edit(key);
+                    if (editor != null) {
+                        OutputStream outputStream = editor.newOutputStream(0);
+                        if (writeBitmapToDisk(value, outputStream)) {
+                            // 写入内存缓存
+                            editor.commit();
+                        } else {
+                            editor.abort();
+                        }
+                        IOUtil.close(outputStream);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-                IOUtil.close(outputStream);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        };
+        ThreadPoolManager.getInstance().execute(runnable);
     }
 
     private boolean writeBitmapToDisk(Bitmap bitmap, OutputStream outputStream) {
+        Log.e(TAG, "writeBitmapToDisk: " + Thread.currentThread().getName());
         BufferedOutputStream bos = new BufferedOutputStream(outputStream, 8 * 1024);
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
         boolean result = true;

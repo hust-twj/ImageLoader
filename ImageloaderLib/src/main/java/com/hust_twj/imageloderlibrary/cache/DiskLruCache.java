@@ -417,7 +417,7 @@ public final class DiskLruCache implements Closeable {
      */
     public synchronized Snapshot get(String key) throws IOException {
         checkNotClosed();
-        validateKey(key);
+        //validateKey(key);
         Entry entry = lruEntries.get(key);
         if (entry == null) {
             return null;
@@ -466,7 +466,7 @@ public final class DiskLruCache implements Closeable {
 
     private synchronized Editor edit(String key, long expectedSequenceNumber) throws Exception {
         checkNotClosed();
-        validateKey(key);
+        //validateKey(key);
         Entry entry = lruEntries.get(key);
         if (expectedSequenceNumber != ANY_SEQUENCE_NUMBER && (entry == null
                 || entry.sequenceNumber != expectedSequenceNumber)) {
@@ -594,7 +594,7 @@ public final class DiskLruCache implements Closeable {
      */
     public synchronized boolean remove(String key) throws IOException {
         checkNotClosed();
-        validateKey(key);
+        //validateKey(key);
         Entry entry = lruEntries.get(key);
         if (entry == null || entry.currentEditor != null) {
             return false;
