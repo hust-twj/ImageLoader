@@ -4,9 +4,9 @@ import android.graphics.Bitmap;
 import android.support.annotation.NonNull;
 import android.widget.ImageView;
 
-import com.hust_twj.imageloderlibrary.config.DisplayConfig;
+import com.hust_twj.imageloderlibrary.constant.Constants;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
-import com.hust_twj.imageloderlibrary.utils.ImageViewUtils;
+import com.hust_twj.imageloderlibrary.utils.ImageViewUtil;
 
 /**
  * 图片加载的请求信息
@@ -20,8 +20,16 @@ public class LoadRequest implements Comparable<LoadRequest> {
 
     public String uri;
 
-    //配置信息
-    public DisplayConfig mDisplayConfig = new DisplayConfig();
+    public int placeHolderResID;
+
+    public int errorResID;
+
+    public boolean displayRaw;
+
+    public int defaultWidth = Constants.DEFAULT_IMAGE_WIDTH;
+
+    public int defaultHeight = Constants.DEFAULT_IMAGE_HEIGHT;
+
     //加载回调
     public ImageLoadListener mImageLoadListener;
 
@@ -53,8 +61,28 @@ public class LoadRequest implements Comparable<LoadRequest> {
         return this;
     }
 
-    public LoadRequest setDisplayConfig(DisplayConfig displayConfig) {
-        this.mDisplayConfig = displayConfig;
+    public LoadRequest setDefaultWidth(int defaultWidth) {
+        this.defaultWidth = defaultWidth;
+        return this;
+    }
+
+    public LoadRequest setDefaultHeight(int defaultHeight) {
+        this.defaultHeight = defaultHeight;
+        return this;
+    }
+
+    public LoadRequest setPlaceHolder(int placeHolderResID) {
+        this.placeHolderResID = placeHolderResID;
+        return this;
+    }
+
+    public LoadRequest setError(int errorResID) {
+        this.errorResID = errorResID;
+        return this;
+    }
+
+    public LoadRequest setDisplayRaw(boolean displayRaw) {
+        this.displayRaw = displayRaw;
         return this;
     }
 
@@ -69,11 +97,17 @@ public class LoadRequest implements Comparable<LoadRequest> {
     }
 
     public int getImageViewWidth() {
-        return ImageViewUtils.getImageViewWidth(mImageView);
+        if (ImageViewUtil.getImageViewWidth(mImageView) != 0) {
+            return ImageViewUtil.getImageViewWidth(mImageView);
+        }
+        return defaultWidth;
     }
 
     public int getImageViewHeight() {
-        return ImageViewUtils.getImageViewHeight(mImageView);
+        if (ImageViewUtil.getImageViewHeight(mImageView) != 0) {
+            return ImageViewUtil.getImageViewHeight(mImageView);
+        }
+        return defaultHeight;
     }
 
     /**
@@ -83,19 +117,6 @@ public class LoadRequest implements Comparable<LoadRequest> {
         return mImageView != null && mImageView.getTag().equals(uri);
     }
 
-    /**
-     * 是否为本地资源
-     */
-    public static boolean isResource(String uri) {
-        boolean isResource;
-        try {
-            Integer.parseInt(uri);
-            isResource = true;
-        } catch (Exception e) {
-            isResource = false;
-        }
-        return isResource;
-    }
 
     @Override
     public boolean equals(Object obj) {

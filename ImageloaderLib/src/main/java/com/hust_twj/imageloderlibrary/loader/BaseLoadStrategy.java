@@ -6,8 +6,8 @@ import android.widget.ImageView;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
-import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.utils.CheckUtil;
 import com.hust_twj.imageloderlibrary.utils.Md5Utils;
 
 /**
@@ -47,7 +47,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      * 缓存新的图片
      */
     private void cacheBitmap(LoadRequest request, Bitmap bitmap) {
-        if (LoadRequest.isResource(request.uri)) {
+        if (CheckUtil.isResource(request.uri)) {
             return;
         }
         if (bitmap == null || mCache == null) {
@@ -66,12 +66,12 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      */
     private void showLoading(final LoadRequest request) {
         final ImageView imageView = request.mImageView;
-        if (request.isImageViewTagValid() && hasLoadingPlaceholder(request.mDisplayConfig)) {
+        if (request.isImageViewTagValid() && request.placeHolderResID > 0) {
             imageView.post(new Runnable() {
 
                 @Override
                 public void run() {
-                    imageView.setImageResource(request.mDisplayConfig.placeHolderResId);
+                    imageView.setImageResource(request.placeHolderResID);
                 }
             });
         }
@@ -101,11 +101,11 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
                 request.mImageLoadListener.onResourceReady(bitmap, request.uri);
             }
         } else if (bitmap == null) {
-            if (hasErrorPlaceholder(request.mDisplayConfig)) {
+            if (request.errorResID > 0) {
                 imageView.post(new Runnable() {
                     @Override
                     public void run() {
-                        imageView.setImageResource(request.mDisplayConfig.errorResId);
+                        imageView.setImageResource(request.errorResID);
                     }
                 });
             }
@@ -115,16 +115,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
             if (request.mImageLoadListener != null) {
                 request.mImageLoadListener.onFailure();
             }
-
         }
-    }
-
-    private boolean hasLoadingPlaceholder(DisplayConfig displayConfig) {
-        return displayConfig != null && displayConfig.placeHolderResId > 0;
-    }
-
-    private boolean hasErrorPlaceholder(DisplayConfig displayConfig) {
-        return displayConfig != null && displayConfig.errorResId > 0;
     }
 
 }

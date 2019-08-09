@@ -33,7 +33,7 @@ public class LocalLoadStrategy extends BaseLoadStrategy {
         request.onlyCacheMemory = true;
 
         Bitmap bitmap = BitmapFactory.decodeFile(imagePath);
-        if (request.mDisplayConfig.displayRaw) {
+        if (request.displayRaw) {
             return bitmap;
         }
         return ImageDecoder.decodeBitmap(bitmap, request.getImageViewWidth(), request.getImageViewHeight() );

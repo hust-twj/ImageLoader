@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import com.hust_twj.imageloderlibrary.utils.CheckUtil;
 import com.hust_twj.imageloderlibrary.utils.IOUtil;
 import com.hust_twj.imageloderlibrary.task.LoadRequest;
 import com.hust_twj.imageloderlibrary.utils.ImageDecoder;
@@ -23,6 +24,9 @@ public class NetworkLoadStrategy extends BaseLoadStrategy {
 
     @Override
     public Bitmap onLoadImage(LoadRequest request) {
+        if (CheckUtil.isActivityFinished(request)) {
+            return null;
+        }
         final String imageUrl = request.uri;
         InputStream inputStream = null;
         Bitmap bitmap = null;
@@ -30,13 +34,14 @@ public class NetworkLoadStrategy extends BaseLoadStrategy {
         try {
             URL url = new URL(imageUrl);
             urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setConnectTimeout(5 * 1000);
             inputStream = new BufferedInputStream(urlConnection.getInputStream());
             bitmap = BitmapFactory.decodeStream(inputStream, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             if (inputStream != null) {
-                IOUtil.closeQuietly(inputStream);
+                IOUtil.close(inputStream);
             }
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -45,11 +50,11 @@ public class NetworkLoadStrategy extends BaseLoadStrategy {
         if (bitmap == null) {
             return null;
         }
-        Log.e(TAG, "显示原图：" + request.mDisplayConfig.displayRaw + "  " +
+        Log.e(TAG, "显示原图：" + request.displayRaw + "  " +
                 "原始图片大小：" + bitmap.getWidth() + "*" + bitmap.getHeight() + "  " +
                 "处理后图片大小：" +  ImageDecoder.decodeBitmap(bitmap, request.getImageViewWidth(), request.getImageViewHeight()).getWidth() +
                 "*" + ImageDecoder.decodeBitmap(bitmap, request.getImageViewWidth(), request.getImageViewHeight()).getHeight());
-        if (request.mDisplayConfig.displayRaw) {
+        if (request.displayRaw) {
             return bitmap;
         }
         return ImageDecoder.decodeBitmap(bitmap, request.getImageViewWidth(), request.getImageViewHeight());

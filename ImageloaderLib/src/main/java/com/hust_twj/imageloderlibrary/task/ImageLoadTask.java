@@ -1,11 +1,13 @@
 package com.hust_twj.imageloderlibrary.task;
 
+import android.app.Activity;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.loader.ILoadStrategy;
 import com.hust_twj.imageloderlibrary.loader.LoadManager;
+import com.hust_twj.imageloderlibrary.utils.CheckUtil;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -16,12 +18,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * 请求任务（包含优先级队列,使得请求可以按照优先级进行处理）
+ * 图片加载请求任务（包含优先级队列,使得请求可以按照优先级进行处理）
  * Created by Wenjing.Tang on 2019-07-16.
  */
-public final class LoadTask {
+public final class ImageLoadTask {
 
-    private static final String TAG = LoadTask.class.getSimpleName();
+    private static final String TAG = ImageLoadTask.class.getSimpleName();
 
     /**
      * 请求队列
@@ -63,6 +65,10 @@ public final class LoadTask {
                     request = mRequestQueue.take();
 
                     if (request.isCancel) {
+                        return;
+                    }
+                    Log.e(TAG, "isActivityFinished: " + CheckUtil.isActivityFinished(request));
+                    if (CheckUtil.isActivityFinished(request)) {
                         return;
                     }
                     String schema = parseSchema(request.uri);

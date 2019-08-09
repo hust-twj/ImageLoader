@@ -1,7 +1,6 @@
 package com.hust_twj.imageloderlibrary.config;
 
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
-import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 
 /**
  * ImageLoader的配置类
@@ -12,14 +11,24 @@ import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 public class LoaderConfig {
 
     /**
-     * 图片缓存配置对象
+     *显示配置
      */
-    public BitmapCache bitmapCache = new MemoryCache();
+    public DisplayConfig mDisplayConfig;
+
+    /**
+     * 图片缓存配置
+     */
+    public BitmapCache bitmapCache;
 
     /**
      * 线程数
      */
     public int threadCount = Runtime.getRuntime().availableProcessors() + 1;
+
+    public LoaderConfig displayConfig(DisplayConfig displayConfig) {
+        mDisplayConfig = displayConfig;
+        return this;
+    }
 
     public LoaderConfig cache(BitmapCache cache) {
         bitmapCache = cache;

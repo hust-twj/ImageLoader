@@ -12,10 +12,11 @@ public class DoubleCache implements BitmapCache {
 
     private DiskCache mDiskCache;
 
-    private MemoryCache mMemoryCache = new MemoryCache();
+    private MemoryCache mMemoryCache;
 
     public DoubleCache(Context context) {
         mDiskCache = DiskCache.getDiskCache(context);
+        mMemoryCache = new MemoryCache();
     }
 
     @Override

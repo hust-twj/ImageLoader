@@ -4,14 +4,12 @@ import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.hust_twj.imageloderlibrary.config.DisplayConfig;
-
 import java.lang.reflect.Field;
 
 /**
  * Created by Wenjing.Tang on 2019-07-16.
  */
-public class ImageViewUtils {
+public class ImageViewUtil {
 
     /**
      * 获取ImageView宽度
@@ -32,7 +30,7 @@ public class ImageViewUtils {
             }
             return width;
         }
-        return DisplayConfig.DEFAULT_WIDTH;
+        return 0;
     }
 
     /**
@@ -55,7 +53,7 @@ public class ImageViewUtils {
             }
             return height;
         }
-        return DisplayConfig.DEFAULT_HEIGHT;
+        return 0;
     }
 
     /**

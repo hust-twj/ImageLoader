@@ -10,10 +10,11 @@ import com.hust_twj.imageloderlibrary.cache.DoubleCache;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
 import com.hust_twj.imageloderlibrary.config.LoaderConfig;
+import com.hust_twj.imageloderlibrary.constant.Constants;
 import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
 import com.hust_twj.imageloderlibrary.task.LoadRequest;
-import com.hust_twj.imageloderlibrary.task.LoadTask;
+import com.hust_twj.imageloderlibrary.task.ImageLoadTask;
 import com.hust_twj.imageloderlibrary.utils.LoaderProvider;
 
 /**
@@ -23,6 +24,8 @@ import com.hust_twj.imageloderlibrary.utils.LoaderProvider;
 public class ImageLoader {
 
     private static final String TAG = ImageLoader.class.getSimpleName();
+
+    private Context mContext;
 
     private static volatile ImageLoader sInstance;
 
@@ -34,14 +37,16 @@ public class ImageLoader {
     /**
      * 缓存
      */
-    private volatile BitmapCache mCache = new MemoryCache();
+    private BitmapCache mCache;
 
-    private LoadTask mLoadTask;
+    private DisplayConfig mDisplayConfig;
+
+    private ImageLoadTask mImageLoadTask;
 
     private LoadRequest mLoadRequest;
 
     private ImageLoader(Context context) {
-        //mContext = context.getApplicationContext();
+        mContext = context.getApplicationContext();
     }
 
     public static ImageLoader get() {
@@ -59,18 +64,23 @@ public class ImageLoader {
     }
 
     public void init(LoaderConfig config) {
-        mConfig = config;
-        mCache = config.bitmapCache;
-        mLoadTask = new LoadTask();
-
-        if (mConfig == null) {
+        if (config == null) {
             throw new RuntimeException("config is null");
         }
+        mConfig = config;
+        mCache = config.bitmapCache;
+        mDisplayConfig = config.mDisplayConfig;
+
+        mImageLoadTask = new ImageLoadTask();
+
         if (mCache == null) {
-            mCache = new MemoryCache();
+            mCache = new DoubleCache(mContext);
         }
     }
 
+    /**
+     * 加载本地资源图片
+     */
     public ImageLoader load(@DrawableRes int resID) {
         //资源图片加载，需要构造前缀
         String uri = Schema.PREFIX_RESOURCE.concat(Schema.SPIT).concat(String.valueOf(resID));
@@ -78,36 +88,44 @@ public class ImageLoader {
         return this;
     }
 
+    /**
+     * 加载网络或者SD卡中的图片
+     */
     public ImageLoader load(String uri) {
         mLoadRequest = new LoadRequest();
         mLoadRequest.setUri(uri);
         return this;
     }
 
-    public ImageLoader error(@DrawableRes int errorResID) {
-        DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
-                : new DisplayConfig();
-        displayConfig.errorResId = errorResID;
-        mLoadRequest.setDisplayConfig(displayConfig);
-        return this;
-    }
-
+    /**
+     * 加载中的占位符
+     */
     public ImageLoader placeHolder(@DrawableRes int placeHoldResID) {
-        DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
-                : new DisplayConfig();
-        displayConfig.placeHolderResId = placeHoldResID;
-        mLoadRequest.setDisplayConfig(displayConfig);
+        mLoadRequest.setPlaceHolder(placeHoldResID);
         return this;
     }
 
-    public ImageLoader displayRaw(boolean  displayRaw) {
-        DisplayConfig displayConfig = mLoadRequest.mDisplayConfig != null ? mLoadRequest.mDisplayConfig
-                : new DisplayConfig();
-        displayConfig.displayRaw = displayRaw;
-        mLoadRequest.setDisplayConfig(displayConfig);
+    /**
+     * 加载失败的占位符
+     */
+    public ImageLoader error(@DrawableRes int errorResID) {
+        mLoadRequest.setError(errorResID);
         return this;
     }
 
+    /**
+     * 是否显示原图
+     *
+     * @param displayRaw true：不缩放；false：缩放
+     */
+    public ImageLoader displayRaw(boolean displayRaw) {
+        mLoadRequest.setDisplayRaw(displayRaw);
+        return this;
+    }
+
+    /**
+     * 回调监听
+     */
     public ImageLoader listener(ImageLoadListener listener) {
         mLoadRequest.setImageLoadListener(listener);
         return this;
@@ -117,13 +135,38 @@ public class ImageLoader {
      * 开始图片加载
      */
     public ImageLoader into(ImageView imageView) {
+        setDefaultConfig();
         mLoadRequest.setImageView(imageView);
 
         // 添加对队列中
-        mLoadTask.addRequest(mLoadRequest);
+        mImageLoadTask.addRequest(mLoadRequest);
         //启动线程池加载图片
-        mLoadTask.start();
+        mImageLoadTask.start();
         return this;
+    }
+
+    /**
+     * 设置默认配置
+     */
+    private void setDefaultConfig() {
+        if (mDisplayConfig == null) {
+            return;
+        }
+        if (mLoadRequest.errorResID == Constants.DEFAULT_RES_ID && mDisplayConfig.errorResId > 0) {
+            mLoadRequest.setError(mDisplayConfig.errorResId);
+        }
+        if (mLoadRequest.placeHolderResID == Constants.DEFAULT_RES_ID && mDisplayConfig.placeHolderResId > 0) {
+            mLoadRequest.setPlaceHolder(mDisplayConfig.placeHolderResId);
+        }
+        mLoadRequest.setDisplayRaw(mDisplayConfig.displayRaw);
+
+        if (mLoadRequest.defaultWidth == 0 && mDisplayConfig.defaultWidth > 0) {
+            mLoadRequest.setDefaultWidth(mDisplayConfig.defaultWidth);
+        }
+
+        if (mLoadRequest.defaultHeight == 0 && mDisplayConfig.defaultHeight > 0) {
+            mLoadRequest.setDefaultHeight(mDisplayConfig.defaultHeight);
+        }
     }
 
     public LoaderConfig getConfig() {
@@ -134,7 +177,7 @@ public class ImageLoader {
      * 取消图片加载请求
      */
     public void stop() {
-        mLoadTask.stop();
+        mImageLoadTask.stop();
     }
 
     /**
@@ -151,7 +194,7 @@ public class ImageLoader {
      */
     public void clearMemoryCache() {
         if (mCache instanceof DoubleCache) {
-            ((DoubleCache)mCache).clearMemoryCache();
+            ((DoubleCache) mCache).clearMemoryCache();
         } else if (mCache instanceof MemoryCache) {
             mCache.clearCache();
         }
@@ -162,7 +205,7 @@ public class ImageLoader {
      */
     public void clearDiskCache() {
         if (mCache instanceof DoubleCache) {
-            ((DoubleCache)mCache).clearDiskCache();
+            ((DoubleCache) mCache).clearDiskCache();
         } else if (mCache instanceof DiskCache) {
             mCache.clearCache();
         }

@@ -49,9 +49,8 @@ public final class IOUtil {
         if (closeable != null) {
             try {
                 closeable.close();
-            } catch (RuntimeException rethrown) {
-                throw rethrown;
-            } catch (Exception ignored) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }
@@ -73,4 +72,5 @@ public final class IOUtil {
             e.printStackTrace();
         }
     }
+
 }

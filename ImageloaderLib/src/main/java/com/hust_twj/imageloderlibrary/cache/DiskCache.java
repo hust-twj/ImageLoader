@@ -119,7 +119,7 @@ public class DiskCache implements BitmapCache {
                 } else {
                     editor.abort();
                 }
-                IOUtil.closeQuietly(outputStream);
+                IOUtil.close(outputStream);
             }
         } catch (Exception e) {
             e.printStackTrace();
