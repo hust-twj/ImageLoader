@@ -33,4 +33,5 @@
 ```
 
 ### 类图
-https://i.loli.net/2019/08/12/AsJMT1vLVzhNtyX.png
+
+http://pw3zf0ic2.bkt.clouddn.com/uml.png
