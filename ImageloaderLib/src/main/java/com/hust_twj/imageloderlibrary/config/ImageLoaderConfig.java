@@ -8,7 +8,7 @@ import com.hust_twj.imageloderlibrary.cache.BitmapCache;
  * @author hust_twj
  * @date 2019/7/11
  */
-public class LoaderConfig {
+public class ImageLoaderConfig {
 
     /**
      *显示配置
@@ -25,17 +25,17 @@ public class LoaderConfig {
      */
     public int threadCount = Runtime.getRuntime().availableProcessors() + 1;
 
-    public LoaderConfig displayConfig(DisplayConfig displayConfig) {
+    public ImageLoaderConfig displayConfig(DisplayConfig displayConfig) {
         mDisplayConfig = displayConfig;
         return this;
     }
 
-    public LoaderConfig cache(BitmapCache cache) {
+    public ImageLoaderConfig cache(BitmapCache cache) {
         bitmapCache = cache;
         return this;
     }
 
-    public LoaderConfig threadCount(int count) {
+    public ImageLoaderConfig threadCount(int count) {
         threadCount = Math.max(1, count);
         return this;
     }

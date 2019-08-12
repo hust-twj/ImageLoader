@@ -1,7 +1,7 @@
 package com.hust_twj.imageloderlibrary.loader;
 
 
-import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.Request;
 
 /**
  * 加载策略接口
@@ -9,6 +9,6 @@ import com.hust_twj.imageloderlibrary.task.LoadRequest;
  */
 public interface ILoadStrategy {
 
-    void loadImage(LoadRequest request);
+    void loadImage(Request request);
 
 }

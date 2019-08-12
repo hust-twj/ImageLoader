@@ -14,7 +14,7 @@ import com.hust_twj.imageloderlibrary.utils.ImageViewUtil;
  * @author hust_twj
  * @date 2019/7/2
  */
-public class LoadRequest implements Comparable<LoadRequest> {
+public class Request implements Comparable<Request> {
 
     public ImageView mImageView;
 
@@ -44,7 +44,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
     //仅在内存中缓存
     public boolean onlyCacheMemory = false;
 
-    public LoadRequest setImageView(ImageView imageView) {
+    public Request setImageView(ImageView imageView) {
         this.mImageView = imageView;
         //设置tag
         if (uri != null) {
@@ -53,7 +53,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
         return this;
     }
 
-    public LoadRequest setUri(String uri) {
+    public Request setUri(String uri) {
         this.uri = uri;
         if (mImageView  != null) {
             mImageView.setTag(uri);
@@ -61,37 +61,37 @@ public class LoadRequest implements Comparable<LoadRequest> {
         return this;
     }
 
-    public LoadRequest setDefaultWidth(int defaultWidth) {
+    public Request setDefaultWidth(int defaultWidth) {
         this.defaultWidth = defaultWidth;
         return this;
     }
 
-    public LoadRequest setDefaultHeight(int defaultHeight) {
+    public Request setDefaultHeight(int defaultHeight) {
         this.defaultHeight = defaultHeight;
         return this;
     }
 
-    public LoadRequest setPlaceHolder(int placeHolderResID) {
+    public Request setPlaceHolder(int placeHolderResID) {
         this.placeHolderResID = placeHolderResID;
         return this;
     }
 
-    public LoadRequest setError(int errorResID) {
+    public Request setError(int errorResID) {
         this.errorResID = errorResID;
         return this;
     }
 
-    public LoadRequest setDisplayRaw(boolean displayRaw) {
+    public Request setDisplayRaw(boolean displayRaw) {
         this.displayRaw = displayRaw;
         return this;
     }
 
-    public LoadRequest setImageLoadListener(ImageLoadListener imageLoadListener) {
+    public Request setImageLoadListener(ImageLoadListener imageLoadListener) {
         this.mImageLoadListener = imageLoadListener;
         return this;
     }
 
-    public LoadRequest setBitmap(Bitmap bitmap) {
+    public Request setBitmap(Bitmap bitmap) {
         this.mBitmap = bitmap;
         return this;
     }
@@ -126,7 +126,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        LoadRequest other = (LoadRequest) obj;
+        Request other = (Request) obj;
         if (uri == null) {
             if (other.uri != null)
                 return false;
@@ -149,7 +149,7 @@ public class LoadRequest implements Comparable<LoadRequest> {
     }
 
     @Override
-    public int compareTo(@NonNull LoadRequest request) {
+    public int compareTo(@NonNull Request request) {
         return 0;
     }
 }

@@ -22,7 +22,7 @@ public final class ImageLoadTask {
     /**
      * 请求队列
      */
-    private BlockingQueue<LoadRequest> mRequestQueue = new PriorityBlockingQueue<>();
+    private BlockingQueue<Request> mRequestQueue = new PriorityBlockingQueue<>();
     /**
      * 请求的序列化生成器
      */
@@ -36,7 +36,7 @@ public final class ImageLoadTask {
 
             @Override
             public void run() {
-                LoadRequest request;
+                Request request;
                 try {
                     request = mRequestQueue.take();
 
@@ -86,10 +86,10 @@ public final class ImageLoadTask {
     /**
      * 不能重复添加请求
      */
-    public void addRequest(LoadRequest loadRequest) {
-        if (!mRequestQueue.contains(loadRequest)) {
-            loadRequest.serialNum = generateSerialNumber();
-            mRequestQueue.add(loadRequest);
+    public void addRequest(Request request) {
+        if (!mRequestQueue.contains(request)) {
+            request.serialNum = generateSerialNumber();
+            mRequestQueue.add(request);
         } else {
             Log.e(TAG, "请求已在队列中");
         }

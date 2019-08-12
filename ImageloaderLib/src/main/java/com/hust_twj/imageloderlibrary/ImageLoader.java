@@ -9,11 +9,11 @@ import com.hust_twj.imageloderlibrary.cache.DiskCache;
 import com.hust_twj.imageloderlibrary.cache.DoubleCache;
 import com.hust_twj.imageloderlibrary.cache.MemoryCache;
 import com.hust_twj.imageloderlibrary.config.DisplayConfig;
-import com.hust_twj.imageloderlibrary.config.LoaderConfig;
+import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig;
 import com.hust_twj.imageloderlibrary.constant.Constants;
 import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.listener.ImageLoadListener;
-import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.Request;
 import com.hust_twj.imageloderlibrary.task.ImageLoadTask;
 import com.hust_twj.imageloderlibrary.utils.LoaderProvider;
 
@@ -32,7 +32,7 @@ public class ImageLoader {
     /**
      * 图片加载配置对象
      */
-    private LoaderConfig mConfig;
+    private ImageLoaderConfig mConfig;
 
     /**
      * 缓存
@@ -43,7 +43,7 @@ public class ImageLoader {
 
     private ImageLoadTask mImageLoadTask;
 
-    private LoadRequest mLoadRequest;
+    private Request mRequest;
 
     private ImageLoader(Context context) {
         mContext = context.getApplicationContext();
@@ -63,7 +63,7 @@ public class ImageLoader {
         return sInstance;
     }
 
-    public void init(LoaderConfig config) {
+    public void init(ImageLoaderConfig config) {
         if (config == null) {
             throw new RuntimeException("config is null");
         }
@@ -92,8 +92,8 @@ public class ImageLoader {
      * 加载网络或者SD卡中的图片
      */
     public ImageLoader load(String uri) {
-        mLoadRequest = new LoadRequest();
-        mLoadRequest.setUri(uri);
+        mRequest = new Request();
+        mRequest.setUri(uri);
         return this;
     }
 
@@ -101,7 +101,7 @@ public class ImageLoader {
      * 加载中的占位符
      */
     public ImageLoader placeHolder(@DrawableRes int placeHoldResID) {
-        mLoadRequest.setPlaceHolder(placeHoldResID);
+        mRequest.setPlaceHolder(placeHoldResID);
         return this;
     }
 
@@ -109,7 +109,7 @@ public class ImageLoader {
      * 加载失败的占位符
      */
     public ImageLoader error(@DrawableRes int errorResID) {
-        mLoadRequest.setError(errorResID);
+        mRequest.setError(errorResID);
         return this;
     }
 
@@ -119,7 +119,7 @@ public class ImageLoader {
      * @param displayRaw true：不缩放；false：缩放
      */
     public ImageLoader displayRaw(boolean displayRaw) {
-        mLoadRequest.setDisplayRaw(displayRaw);
+        mRequest.setDisplayRaw(displayRaw);
         return this;
     }
 
@@ -127,7 +127,7 @@ public class ImageLoader {
      * 回调监听
      */
     public ImageLoader listener(ImageLoadListener listener) {
-        mLoadRequest.setImageLoadListener(listener);
+        mRequest.setImageLoadListener(listener);
         return this;
     }
 
@@ -136,10 +136,10 @@ public class ImageLoader {
      */
     public ImageLoader into(ImageView imageView) {
         setDefaultConfig();
-        mLoadRequest.setImageView(imageView);
+        mRequest.setImageView(imageView);
 
         // 添加对队列中
-        mImageLoadTask.addRequest(mLoadRequest);
+        mImageLoadTask.addRequest(mRequest);
         //启动线程池加载图片
         mImageLoadTask.start();
         return this;
@@ -152,24 +152,24 @@ public class ImageLoader {
         if (mDisplayConfig == null) {
             return;
         }
-        if (mLoadRequest.errorResID == Constants.DEFAULT_RES_ID && mDisplayConfig.errorResId > 0) {
-            mLoadRequest.setError(mDisplayConfig.errorResId);
+        if (mRequest.errorResID == Constants.DEFAULT_RES_ID && mDisplayConfig.errorResId > 0) {
+            mRequest.setError(mDisplayConfig.errorResId);
         }
-        if (mLoadRequest.placeHolderResID == Constants.DEFAULT_RES_ID && mDisplayConfig.placeHolderResId > 0) {
-            mLoadRequest.setPlaceHolder(mDisplayConfig.placeHolderResId);
+        if (mRequest.placeHolderResID == Constants.DEFAULT_RES_ID && mDisplayConfig.placeHolderResId > 0) {
+            mRequest.setPlaceHolder(mDisplayConfig.placeHolderResId);
         }
-        mLoadRequest.setDisplayRaw(mDisplayConfig.displayRaw);
+        mRequest.setDisplayRaw(mDisplayConfig.displayRaw);
 
-        if (mLoadRequest.defaultWidth == 0 && mDisplayConfig.defaultWidth > 0) {
-            mLoadRequest.setDefaultWidth(mDisplayConfig.defaultWidth);
+        if (mRequest.defaultWidth == 0 && mDisplayConfig.defaultWidth > 0) {
+            mRequest.setDefaultWidth(mDisplayConfig.defaultWidth);
         }
 
-        if (mLoadRequest.defaultHeight == 0 && mDisplayConfig.defaultHeight > 0) {
-            mLoadRequest.setDefaultHeight(mDisplayConfig.defaultHeight);
+        if (mRequest.defaultHeight == 0 && mDisplayConfig.defaultHeight > 0) {
+            mRequest.setDefaultHeight(mDisplayConfig.defaultHeight);
         }
     }
 
-    public LoaderConfig getConfig() {
+    public ImageLoaderConfig getConfig() {
         return mConfig;
     }
 

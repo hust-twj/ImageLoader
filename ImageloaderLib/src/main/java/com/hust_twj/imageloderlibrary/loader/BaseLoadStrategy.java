@@ -7,7 +7,7 @@ import android.widget.ImageView;
 import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.BitmapCache;
 import com.hust_twj.imageloderlibrary.constant.Constants;
-import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.Request;
 import com.hust_twj.imageloderlibrary.utils.CheckUtil;
 
 /**
@@ -24,7 +24,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     private BitmapCache mCache = ImageLoader.get().getConfig().bitmapCache;
 
     @Override
-    public final void loadImage(LoadRequest request) {
+    public final void loadImage(Request request) {
         Bitmap resultBitmap;
         resultBitmap = mCache.get(request.uri);
         Log.e(TAG, "是否有缓存 : " + (resultBitmap != null) + ", uri: " +
@@ -41,12 +41,12 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
         updateImageView(request, resultBitmap);
     }
 
-    protected abstract Bitmap onLoadImage(LoadRequest request);
+    protected abstract Bitmap onLoadImage(Request request);
 
     /**
      * 缓存新的图片
      */
-    private void cacheBitmap(LoadRequest request, Bitmap bitmap) {
+    private void cacheBitmap(Request request, Bitmap bitmap) {
         if (CheckUtil.isResource(request.uri)) {
             return;
         }
@@ -64,7 +64,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      *
      * @param request request
      */
-    private void showLoading(final LoadRequest request) {
+    private void showLoading(final Request request) {
         final ImageView imageView = request.mImageView;
         if (request.isImageViewTagValid() && request.placeHolderResID != Constants.DEFAULT_RES_ID) {
             imageView.post(new Runnable() {
@@ -83,7 +83,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      * @param request request
      * @param bitmap  bitmap
      */
-    private void updateImageView(final LoadRequest request, final Bitmap bitmap) {
+    private void updateImageView(final Request request, final Bitmap bitmap) {
         final ImageView imageView = request.mImageView;
         if (imageView == null) {
             return;

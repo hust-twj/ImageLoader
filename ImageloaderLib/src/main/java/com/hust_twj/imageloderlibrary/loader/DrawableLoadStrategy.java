@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.hust_twj.imageloderlibrary.constant.Schema;
-import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.Request;
 
 
 /**
@@ -15,7 +15,7 @@ import com.hust_twj.imageloderlibrary.task.LoadRequest;
 public class DrawableLoadStrategy extends BaseLoadStrategy {
 
     @Override
-    public Bitmap onLoadImage(LoadRequest request) {
+    public Bitmap onLoadImage(Request request) {
         Bitmap bitmap = null;
         try {
             int resID = Integer.parseInt(request.uri.split(Schema.SPIT)[1]);

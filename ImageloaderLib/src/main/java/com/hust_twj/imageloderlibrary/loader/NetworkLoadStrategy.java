@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.hust_twj.imageloderlibrary.utils.CheckUtil;
 import com.hust_twj.imageloderlibrary.utils.IOUtil;
-import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.Request;
 import com.hust_twj.imageloderlibrary.utils.ImageDecoder;
 
 import java.io.BufferedInputStream;
@@ -23,7 +23,7 @@ public class NetworkLoadStrategy extends BaseLoadStrategy {
     private static final String TAG = NetworkLoadStrategy.class.getSimpleName();
 
     @Override
-    public Bitmap onLoadImage(LoadRequest request) {
+    public Bitmap onLoadImage(Request request) {
         if (CheckUtil.isActivityFinished(request)) {
             return null;
         }

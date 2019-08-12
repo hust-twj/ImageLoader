@@ -6,7 +6,7 @@ class DiskLruCache
 class DoubleCache
 class MemoryCache
 
-class LoaderConfig
+class ImageLoaderConfig
 class DisplayConfig
 
 interface ImageLoadListener
@@ -18,8 +18,8 @@ class DrawableLoadStrategy
 class LocalLoadStrategy
 class LoadManager
 
-class LoadRequest
-class LoadTask
+class Request
+class ImageLoadTask
 
 class ImageLoader
 
@@ -40,12 +40,12 @@ clearCache()
 }
 
 interface ILoadStrategy {
-loadImage(LoadRequest request)
+loadImage(Request request)
 }
 
 abstract class BaseLoadStrategy {
-{abstract} Bitmap onLoadImage(LoadRequest request)
-updateImageView(LoadRequest request, Bitmap bitmap)
+{abstract} Bitmap onLoadImage(Request request)
+updateImageView(Request request, Bitmap bitmap)
 }
 
 class DiskCache {
@@ -63,13 +63,13 @@ DoubleCache <.. DiskCache
 
 class ImageLoader {
 static ImageLoader sInstance
-LoaderConfig mConfig
+ImageLoaderConfig mConfig
 BitmapCache mCache
-LoadTask mLoadTask
-LoadRequest mLoadRequest
+ImageLoadTask mImageLoadTask
+Request mRequest
 
 void get()
-void init(LoaderConfig config)
+void init(ImageLoaderConfig config)
 ImageLoader load(int resID)
 ImageLoader load(String uri)
 ImageLoader error(int errorResID)
@@ -79,7 +79,7 @@ ImageLoader listener(ImageLoadListener listener)
 ImageLoader into(ImageView imageView)
 }
 
-class LoadTask {
+class ImageLoadTask {
 void start()
 }
 
@@ -88,19 +88,40 @@ DiskCache mDiskCache;
 MemoryCache mMemoryCache
 }
 
-ImageLoader <.. LoadTask
-ImageLoader <.. LoadRequest
-ImageLoader <.. LoaderConfig
+ImageLoader <.. ImageLoadTask
+ImageLoader <.. Request
+ImageLoader <.. ImageLoaderConfig
 ImageLoader <.. BitmapCache
 
-LoadRequest <.. DisplayConfig
-LoadRequest <.. ImageLoadListener
+Request <.. DisplayConfig
+Request <.. ImageLoadListener
 
 class LoadManager {
 ILoadStrategy getLoader(String uri)
 }
 
 LoadManager <.. ILoadStrategy
-LoadTask <.. LoadManager
+ImageLoadTask <.. LoadManager
 
+class ImageLoaderConfig {
+DisplayConfig mDisplayConfig
+BitmapCache bitmapCache;
+int threadCount
+ImageLoaderConfig displayConfig(DisplayConfig displayConfig)
+public ImageLoaderConfig cache(BitmapCache cache)
+ImageLoaderConfig threadCount(int count)
+}
+
+interface ImageLoadListener {
+void onResourceReady(Bitmap bitmap, String uri);
+void onFailure();
+}
+
+class DisplayConfig{
+public int defaultWidth
+public int defaultHeight
+public int placeHolderResId
+public int errorResId
+public boolean displayRaw
+}
 @enduml

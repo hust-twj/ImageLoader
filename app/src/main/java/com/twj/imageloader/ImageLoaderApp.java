@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.hust_twj.imageloderlibrary.ImageLoader;
 import com.hust_twj.imageloderlibrary.cache.DoubleCache;
-import com.hust_twj.imageloderlibrary.config.LoaderConfig;
+import com.hust_twj.imageloderlibrary.config.ImageLoaderConfig;
 
 /**
  * Description ：
@@ -23,7 +23,7 @@ public class ImageLoaderApp extends Application {
      * 初始化ImageLoader
      */
     private void initImageLoader() {
-        LoaderConfig config = new LoaderConfig()
+        ImageLoaderConfig config = new ImageLoaderConfig()
                 .cache(new DoubleCache(this))
                 .threadCount(4);
         ImageLoader.get().init(config);

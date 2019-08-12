@@ -2,7 +2,7 @@ package com.hust_twj.imageloderlibrary.utils;
 
 import android.app.Activity;
 
-import com.hust_twj.imageloderlibrary.task.LoadRequest;
+import com.hust_twj.imageloderlibrary.task.Request;
 
 /**
  * Description ：
@@ -27,7 +27,7 @@ public class CheckUtil {
     /**
      * 检查Activity是否Finish
      */
-    public static boolean isActivityFinished(LoadRequest request) {
+    public static boolean isActivityFinished(Request request) {
         if (request == null) {
             return false;
         }
