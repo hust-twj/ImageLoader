@@ -33,5 +33,4 @@
 ```
 
 ### 类图
-
-![类图](https://i.loli.net/2019/08/12/AsJMT1vLVzhNtyX.png)
+https://i.loli.net/2019/08/12/AsJMT1vLVzhNtyX.png
