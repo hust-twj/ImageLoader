@@ -1,7 +1,7 @@
 package com.hust_twj.imageloderlibrary.loader;
 
 
-import com.hust_twj.imageloderlibrary.constant.Schema;
+import com.hust_twj.imageloderlibrary.utils.SchemaUtil;
 
 /**
  * 加载器管理类
@@ -30,11 +30,11 @@ public class LoadManager {
      * @return ILoader
      */
     public ILoadStrategy getLoader(String uri) {
-        if (uri.startsWith(Schema.PREFIX_HTTP) || uri.startsWith(Schema.PREFIX_HTTPS)) {
+        if (SchemaUtil.isFromNetwork(uri)) {
             return new NetworkLoadStrategy();
-        } else if (uri.startsWith(Schema.PREFIX_FILE) || uri.startsWith(Schema.PREFIX_CONTENT)) {
+        } else if (SchemaUtil.isFromFile(uri)) {
             return new LocalLoadStrategy();
-        } else if (uri.startsWith(Schema.PREFIX_RESOURCE)) {
+        } else if (SchemaUtil.isFromDrawable(uri)) {
             return new DrawableLoadStrategy();
         }
         return null;

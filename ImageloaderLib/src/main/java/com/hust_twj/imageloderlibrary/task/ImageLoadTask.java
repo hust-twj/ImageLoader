@@ -2,10 +2,10 @@ package com.hust_twj.imageloderlibrary.task;
 
 import android.util.Log;
 
-import com.hust_twj.imageloderlibrary.constant.Schema;
 import com.hust_twj.imageloderlibrary.loader.ILoadStrategy;
 import com.hust_twj.imageloderlibrary.loader.LoadManager;
 import com.hust_twj.imageloderlibrary.utils.CheckUtil;
+import com.hust_twj.imageloderlibrary.utils.SchemaUtil;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -24,7 +24,7 @@ public final class ImageLoadTask {
      */
     private BlockingQueue<Request> mRequestQueue = new PriorityBlockingQueue<>();
     /**
-     * 请求的序列化生成器
+     * 请求的序列生成器
      */
     private AtomicInteger mSerialNumber = new AtomicInteger(0);
 
@@ -36,9 +36,8 @@ public final class ImageLoadTask {
 
             @Override
             public void run() {
-                Request request;
                 try {
-                    request = mRequestQueue.take();
+                    Request request = mRequestQueue.take();
 
                     if (request.isCancel) {
                         return;
@@ -47,7 +46,7 @@ public final class ImageLoadTask {
                     if (CheckUtil.isActivityFinished(request)) {
                         return;
                     }
-                    String schema = parseSchema(request.uri);
+                    String schema = SchemaUtil.parseSchema(request.uri);
                     ILoadStrategy imageLoader = LoadManager.getInstance().getLoader(schema);
                     if (imageLoader == null) {
                         Log.e(TAG, "run -- schema: " + request.uri);
@@ -60,19 +59,6 @@ public final class ImageLoadTask {
             }
         };
         ThreadPoolManager.getInstance().execute(downloadTask);
-    }
-
-    /**
-     * 解析schema
-     *
-     * @param uri uri
-     * @return schema
-     */
-    private String parseSchema(String uri) {
-        if (uri.contains(Schema.SPIT)) {
-            return uri.split(Schema.SPIT)[0];
-        }
-        return uri;
     }
 
     /**
@@ -106,4 +92,5 @@ public final class ImageLoadTask {
     private int generateSerialNumber() {
         return mSerialNumber.incrementAndGet();
     }
+
 }

@@ -55,7 +55,7 @@ public class Request implements Comparable<Request> {
 
     public Request setUri(String uri) {
         this.uri = uri;
-        if (mImageView  != null) {
+        if (mImageView != null) {
             mImageView.setTag(uri);
         }
         return this;
@@ -120,21 +120,29 @@ public class Request implements Comparable<Request> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+
+        if (getClass() != obj.getClass()) {
             return false;
+        }
+
         Request other = (Request) obj;
         if (uri == null) {
-            if (other.uri != null)
+            if (other.uri != null) {
                 return false;
-        } else if (!uri.equals(other.uri))
+            }
+        } else if (!uri.equals(other.uri)) {
             return false;
-        if (mImageView == null) {
-            if (other.mImageView != null)
-                return false;
+        }
+
+        if (mImageView == null && other.mImageView != null) {
+            return false;
         }
         return serialNum == other.serialNum;
     }
