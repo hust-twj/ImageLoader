@@ -30,11 +30,11 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
         Log.e(TAG, "是否有缓存 : " + (resultBitmap != null) + ", uri: " +
                 request.uri + "   "  +Thread.currentThread().getName());
         if (resultBitmap == null) {
-            showLoading(request);
+            showLoadingView(request);
             resultBitmap = onLoadImage(request);
             Log.e(TAG, "下载完成：" + request.uri + "  " + request.uri + "   "
             + Thread.currentThread().getName());
-            cacheBitmap(request, resultBitmap);
+            updateCache(request, resultBitmap);
         } else {
             request.onlyCacheMemory = true;
         }
@@ -46,7 +46,7 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
     /**
      * 缓存新的图片
      */
-    private void cacheBitmap(Request request, Bitmap bitmap) {
+    private void updateCache(Request request, Bitmap bitmap) {
         if (CheckUtil.isResource(request.uri)) {
             return;
         }
@@ -64,16 +64,10 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
      *
      * @param request request
      */
-    private void showLoading(final Request request) {
+    private void showLoadingView(final Request request) {
         final ImageView imageView = request.mImageView;
         if (request.isImageViewTagValid() && request.placeHolderResID != Constants.DEFAULT_RES_ID) {
-            imageView.post(new Runnable() {
-
-                @Override
-                public void run() {
-                    imageView.setImageResource(request.placeHolderResID);
-                }
-            });
+            setImageResource(imageView, request.placeHolderResID);
         }
     }
 
@@ -90,24 +84,14 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
         }
         //加载成功并回调接口
         if (bitmap != null && request.isImageViewTagValid()) {
-            imageView.post(new Runnable() {
-                @Override
-                public void run() {
-                    Log.e(TAG, "updateImageView：" + bitmap.getWidth() + "*" + bitmap.getHeight() + "  " +request.uri);
-                    imageView.setImageBitmap(bitmap);
-                }
-            });
+            Log.e(TAG, "updateImageView：" + bitmap.getWidth() + "*" + bitmap.getHeight() + "  " +request.uri);
+            setImageBitmap(imageView, bitmap);
             if (request.mImageLoadListener != null) {
                 request.mImageLoadListener.onResourceReady(bitmap, request.uri);
             }
         } else if (bitmap == null) {
             if (request.errorResID != Constants.DEFAULT_RES_ID) {
-                imageView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        imageView.setImageResource(request.errorResID);
-                    }
-                });
+                setImageResource(imageView, request.errorResID);
             }
             Log.e(TAG, "加载失败  " + request.uri + "  " + request.uri + "   ");
 
@@ -116,6 +100,24 @@ public abstract class BaseLoadStrategy implements ILoadStrategy {
                 request.mImageLoadListener.onFailure();
             }
         }
+    }
+
+    private void setImageBitmap(final ImageView imageView, final Bitmap bitmap) {
+        imageView.post(new Runnable() {
+            @Override
+            public void run() {
+                imageView.setImageBitmap(bitmap);
+            }
+        });
+    }
+
+    private void setImageResource(final ImageView imageView, final int resID) {
+        imageView.post(new Runnable() {
+            @Override
+            public void run() {
+                imageView.setImageResource(resID);
+            }
+        });
     }
 
 }

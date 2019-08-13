@@ -16,8 +16,6 @@
 
 package com.hust_twj.imageloderlibrary.cache;
 
-import com.hust_twj.imageloderlibrary.utils.IOUtil;
-
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.EOFException;

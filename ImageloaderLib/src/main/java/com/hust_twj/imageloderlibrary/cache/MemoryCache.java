@@ -14,15 +14,16 @@ import android.util.Log;
  */
 public class MemoryCache implements BitmapCache {
 
-    private static final String TAG = "MemoryCache";
+    private static final String TAG = MemoryCache.class.getSimpleName();
+
     private LruCache<String, Bitmap> mMemoryCache;
 
     public MemoryCache() {
         //获取应用在系统中分配的总内存
         int totalMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
         //取总内存的 1/8 的作为缓存
-        int cacheSize = totalMemory / 8; //32768 --> 大约为30M
-        Log.e(TAG, cacheSize + "");
+        int cacheSize = totalMemory / 8;
+        Log.e(TAG, cacheSize +"");
         mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 
             @Override
@@ -55,7 +56,6 @@ public class MemoryCache implements BitmapCache {
             int cacheSize = getCacheSize();
             mMemoryCache.evictAll();
             Log.e(TAG, "清除内存缓存成功，清除的缓存大小为：" + cacheSize);
-
         }
     }
 

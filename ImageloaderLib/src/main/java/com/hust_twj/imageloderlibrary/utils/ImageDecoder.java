@@ -1,28 +1,17 @@
 package com.hust_twj.imageloderlibrary.utils;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.util.Log;
 
 /**
- * 图片尺寸压缩
+ * Description ：图片解码、压缩工具类
+ * Created by Wenjing.Tang on 2019-07-09.
  */
 public class ImageDecoder {
 
     private static final String TAG = ImageDecoder.class.getSimpleName();
-
-    public static Bitmap decodeBitmapFromResource(Resources res, int resId, int reqWidth, int reqHeight) {
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        options.inSampleSize = calculateInSampleSize(options, reqWidth,
-                reqHeight);
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
-    }
 
     public static Bitmap decodeBitmap(Bitmap bitmap, int reqWidth, int reqHeight) {
         Matrix matrix = new Matrix();

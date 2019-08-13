@@ -21,6 +21,7 @@ public class DoubleCache implements BitmapCache {
 
     @Override
     public Bitmap get(String key) {
+        //先从内存缓存中取；若取不到，就从磁盘缓存中取，并放到内存缓存中
         Bitmap value = mMemoryCache.get(key);
         if (value == null) {
             value = mDiskCache.get(key);
@@ -29,8 +30,10 @@ public class DoubleCache implements BitmapCache {
         return value;
     }
 
+    /**
+     * 缓存到内存中
+     */
     private void saveBitmapIntoMemory(String key, Bitmap bitmap) {
-        // 如果Value从disk中读取，那么存入内存缓存
         if (bitmap != null) {
             mMemoryCache.put(key, bitmap);
         }

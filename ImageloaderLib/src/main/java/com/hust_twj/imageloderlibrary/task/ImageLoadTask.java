@@ -50,7 +50,7 @@ public final class ImageLoadTask {
                     String schema = parseSchema(request.uri);
                     ILoadStrategy imageLoader = LoadManager.getInstance().getLoader(schema);
                     if (imageLoader == null) {
-                        Log.e(TAG, "start -- schema: " + request.uri);
+                        Log.e(TAG, "run -- schema: " + request.uri);
                         return;
                     }
                     imageLoader.loadImage(request);
@@ -80,7 +80,6 @@ public final class ImageLoadTask {
      */
     public void stop() {
         // TODO: 2019/8/4
-        clear();
     }
 
     /**
