@@ -34,6 +34,6 @@
 
 ### 类图
 
-![Image text](http://pw3zf0ic2.bkt.clouddn.com/uml.png)
+![Image text](https://upload-images.jianshu.io/upload_images/6319734-8fa76cdff5cc155d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/726/format/webp)
 
 http://pw3zf0ic2.bkt.clouddn.com/uml.png
