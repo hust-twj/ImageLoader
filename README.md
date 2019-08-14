@@ -10,7 +10,7 @@
     ImageLoader.get().init(config);
 ```
 
-- 加载图片
+- 使用方法
 
 ```
      ImageLoader.get()
@@ -36,4 +36,3 @@
 
 ![alt text](https://github.com/hust-twj/Resources/blob/master/images/uml.png?raw=true)
 
-http://pw3zf0ic2.bkt.clouddn.com/uml.png
