@@ -34,6 +34,6 @@
 
 ### 类图
 
-![alt text](http://pw3zf0ic2.bkt.clouddn.com/uml.png)
+![alt text](https://github.com/hust-twj/Resources/blob/master/images/uml.png?raw=true)
 
 http://pw3zf0ic2.bkt.clouddn.com/uml.png
