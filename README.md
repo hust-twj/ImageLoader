@@ -34,8 +34,6 @@
 
 ### 类图
 
-![Image text](https://raw.github.com/yourName/repositpry/master/yourprojectName/img-folder/test.jpg)
-
 ![Image text](http://pw3zf0ic2.bkt.clouddn.com/uml.png)
 
 http://pw3zf0ic2.bkt.clouddn.com/uml.png
