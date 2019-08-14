@@ -34,6 +34,6 @@
 
 ### 类图
 
-![Image text](http://pw3zf0ic2.bkt.clouddn.com/uml.png)
+![alt text](http://pw3zf0ic2.bkt.clouddn.com/uml.png)
 
 http://pw3zf0ic2.bkt.clouddn.com/uml.png
