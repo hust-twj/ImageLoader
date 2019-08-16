@@ -4,7 +4,7 @@
     <application>
         <provider
             android:name=".utils.LoaderProvider"
-            android:authorities="com.hust_twj.imageloderlibrary.utils.loaderProvider"
+            android:authorities="${applicationId}.imageloderlibrary"
             android:exported="false" />
     </application>
 
