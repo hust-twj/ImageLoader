@@ -6,7 +6,7 @@
 
 - 添加依赖：
 ```
-compile 'com.hust_twj:ImageloaderLib:1.0.0'
+implementation 'com.hust_twj:ImageloaderLib:1.0.0'
 ```
 
 - 全局配置
