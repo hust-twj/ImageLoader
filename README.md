@@ -1,7 +1,14 @@
 # ImageLoader
 自己实现简单的图片加载框架ImageLoader，包含不同图片的加载策略、三级缓存
 
+
 ### 使用
+
+- 添加依赖：
+```
+compile 'com.hust_twj:ImageloaderLib:1.0.0'
+```
+
 - 全局配置
 ```
     LoaderConfig config = new LoaderConfig()
