@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 
+apply plugin: 'com.novoda.bintray-release'
+
 android {
     compileSdkVersion 28
 
@@ -30,4 +32,14 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+}
+
+
+publish {
+    userOrg = 'husttwj'                                         //bintray.com 账号用户名
+    groupId = 'com.hust_twj'                                  //唯一 id，最后依赖的库名组成部分之一
+    artifactId = 'ImageloaderLib'                              //仓库名
+    publishVersion = '1.0.0'                                  //版本号
+    desc = 'for android image loader'            //描述
+    website = 'https://github.com/hust-twj/ImageLoader'   //开源项目网址
 }
